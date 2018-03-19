@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# This builds and runs a microservice.
+#
+
+export SERVICE=secore-template
+
+set -e
+
+. build/version.properties
+
+printf '\e]1;%s\a' "$SERVICE"
+cp build/libs/$SERVICE-$version-all.jar docker
+pushd docker
+docker build -t inomial.io/$SERVICE --build-arg version=$version .
+popd
+#docker run -it --rm --name $SERVICE --network infrastructure inomial.io/$SERVICE

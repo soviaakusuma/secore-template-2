@@ -1,0 +1,65 @@
+/*
+ * Template microservice.
+ */
+
+buildscript {
+  repositories {
+    mavenLocal()
+    jcenter()
+    mavenCentral()
+  }
+}
+
+plugins {
+  id 'com.github.johnrengelman.shadow' version '2.0.0'
+}
+
+apply plugin: "application"
+
+version = "1.0"
+
+mainClassName = "com.inomial.template.Main"
+
+dependencies {
+  compile 'com.inomial:secore:1.0';
+//  compile project (':messages');
+//  compile project (":common");
+
+//   compile 'com.inomial:services-kafka:1.1'
+//   compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
+//   compile "org.apache.kafka:kafka-clients:0.11.0.0"
+//   compile 'org.apache.commons:commons-lang3:3.6'
+//   compile 'org.mybatis:mybatis:3.4.5'
+//   compile 'org.postgresql:postgresql:42.1.4'
+
+  testCompile 'junit:junit:4.12'
+}
+
+repositories {
+  mavenLocal()
+  maven {
+    url "https://maven.inomial.com/"
+  }
+  mavenCentral()
+}
+
+build {
+  dependsOn {
+    shadowJar
+  }
+}
+
+task createProperties(dependsOn: classes) {
+  doLast {
+    new File("$buildDir/version.properties").withWriter { w ->
+        Properties p = new Properties()
+        p['version'] = project.version.toString()
+        p.store w, null
+    }
+  }
+}
+
+assemble {
+  dependsOn createProperties
+}
+
