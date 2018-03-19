@@ -8,7 +8,7 @@ This contains a complete but useless application.
 To use this template:
 
 - copy secore-template from github 
-- rename the source directory from src/main/com/inomial/secore-template
+- rename the source directory from src/main/com/inomial/template
 - change mainClassName in build.gradle
 - replace $SERVICE in mkdocker
 - replace $SERVICE Dockerfile
