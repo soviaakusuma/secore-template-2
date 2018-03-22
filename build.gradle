@@ -46,7 +46,6 @@ repositories {
 build {
   dependsOn {
     shadowJar
-    mkdocker
   }
 }
 
@@ -69,3 +68,4 @@ assemble {
   dependsOn createProperties
 }
 
+build.finalizedBy(mkdocker)
