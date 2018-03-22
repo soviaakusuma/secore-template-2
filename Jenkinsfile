@@ -7,9 +7,6 @@ node {
     stage('Build Gradle project') {
         sh "gradle clean build"
     }
-    stage('Build Docker image') {
-        sh "./mkdocker"
-    }
     stage('Push Docker image') {
         sh "docker tag inomial.io/secore-template inomial.io/secore-template:${versionNumber}"
 
