@@ -46,6 +46,7 @@ repositories {
 build {
   dependsOn {
     shadowJar
+    mkdocker
   }
 }
 
@@ -57,6 +58,11 @@ task createProperties(dependsOn: classes) {
         p.store w, null
     }
   }
+}
+
+// Make Docker
+task mkdocker(type: Exec) {
+    commandLine './mkdocker'
 }
 
 assemble {

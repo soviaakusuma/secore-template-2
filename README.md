@@ -9,9 +9,11 @@ To use this template:
 
 - copy secore-template from github 
 - rename the source directory from src/main/com/inomial/template
+- change settings.gradle to set the project name
 - change mainClassName in build.gradle
 - replace $SERVICE in mkdocker
 - replace $SERVICE Dockerfile
+- update Jenkinsfile to change the project name
 - make microservice!
 
 I'm sure the template can be improved, if you use the tempalte and have time
