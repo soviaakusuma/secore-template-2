@@ -59,6 +59,13 @@ task createProperties(dependsOn: classes) {
   }
 }
 
+task up(type: Exec) {
+  dependsOn {
+    build
+  }
+  commandLine 'docker-compose', 'up'
+}
+
 // Make Docker
 task mkdocker(type: Exec) {
     commandLine './mkdocker'
