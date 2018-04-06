@@ -1,5 +1,5 @@
 #
-# Wrangler dockerfile
+# secore template dockerfile
 #
 
 FROM inomial.io/openjdk8-jre

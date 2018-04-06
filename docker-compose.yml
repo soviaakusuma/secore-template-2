@@ -7,6 +7,5 @@ networks:
 services:
   secore-template:
     image: inomial.io/secore-template
-    hostname: flowable
     networks:
     - infrastructure
