@@ -5,7 +5,6 @@
 
 echo "Starting $SERVICE: $0"
 
-JAVA_OPTS=${JAVA_OPTS:-'-Xms128M -Xmx256M'}
 HEAPDUMPDIR=${HEAPDUMPDIR:-'/tmp'}
 
 export DS_URL=${DS_URL:-jdbc:postgresql://postgres:5432/tagging}
@@ -21,4 +20,4 @@ echo
 
 echo "Starting $SERVICE with command:"
 set -x
-exec /usr/bin/java -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$HEAPDUMPDIR $JAVA_OPTS -jar "$@" "$APPLICATION_WAR"
+exec java -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$HEAPDUMPDIR -Xms128M -Xmx256M $JAVA_OPTS -jar "$@" "$APPLICATION_WAR"
