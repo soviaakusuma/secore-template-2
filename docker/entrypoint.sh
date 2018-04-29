@@ -15,7 +15,7 @@ export KAFKA=${KAFKA:-kafka:9092}
 export IDP=${IDP:-'http://idp:8080/auth'}
 
 echo "Starting $SERVICE with environment:"
-env
+env | grep -v ^DS_PASSWORD
 echo
 
 echo "Starting $SERVICE with command:"
