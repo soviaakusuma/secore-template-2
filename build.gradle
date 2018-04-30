@@ -21,16 +21,12 @@ version = "1.0"
 mainClassName = "com.inomial.template.Main"
 
 dependencies {
-  compile 'com.inomial:secore:1.0';
-//  compile project (':messages');
-//  compile project (":common");
-
-//   compile 'com.inomial:services-kafka:1.1'
-//   compile 'com.fasterxml.jackson.core:jackson-databind:2.8.8'
-//   compile "org.apache.kafka:kafka-clients:0.11.0.0"
-//   compile 'org.apache.commons:commons-lang3:3.6'
-//   compile 'org.mybatis:mybatis:3.4.5'
-//   compile 'org.postgresql:postgresql:42.1.4'
+  // Always use the latest secore. I think there's a way to specify the
+  // "latest" version in gradle, but I can't remember it.
+  compile 'com.inomial:secore:1.1.1';
+  
+  // Include this if you're working with messages
+  // compile 'com.inomial:rating-messages:1.0'
 
   testCompile 'junit:junit:4.12'
 }
