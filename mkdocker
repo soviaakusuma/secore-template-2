@@ -14,4 +14,4 @@ cp build/libs/$SERVICE-$version-all.jar docker
 pushd docker
 docker build -t inomial.io/$SERVICE --build-arg version=$version .
 popd
-#docker run -it --rm --name $SERVICE --network infrastructure inomial.io/$SERVICE
+echo "To run: docker run -it --rm --name $SERVICE --network infrastructure inomial.io/$SERVICE"
