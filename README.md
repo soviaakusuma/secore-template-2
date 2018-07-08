@@ -16,6 +16,7 @@ This template contains a complete (but useless) secore application.
 To use this template for your own project, follow these very simple steps:
 
 - copy `secore-template` from github 
+- also copy `secore-template/.gitignore` from github
 - rename the source directory (ie, from `src/main/java/com/inomial/template`)
 - change package name in `Main.java`
 - change `settings.gradle` to set the project name
