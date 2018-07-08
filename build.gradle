@@ -26,7 +26,7 @@ dependencies {
   compile 'com.inomial:secore:1.1.9';
   
   // Include this if you're working with messages
-  // compile 'com.inomial:rating-messages:1.0'
+  // compile 'com.inomial:rating-messages:1.0.10'
 
   testCompile 'junit:junit:4.12'
 }
