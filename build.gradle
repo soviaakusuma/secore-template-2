@@ -45,6 +45,19 @@ build {
   }
 }
 
+shadowJar {
+  // cf. <http://imperceptiblethoughts.com/shadow/#controlling_jar_content_merging>
+  // This is needed to ensure that the the "/META-INF/services/javax.ws.rs.ext.Providers" files in the various
+  // RESTeasy-related jars are correctly concatenated together and prevent one file from overwriting the others.
+  //
+  // RESTeasy reads a list of class names from this file location (embedded in the .jar) upon startup to
+  // register the various marshalling/unmarshalling providers; this includes the stock providers (marshalling
+  // primitive types, strings and streams). Allowing this file to be clobbered will result in
+  // NoMessageBodyReaderFoundFailure/NoMessageBodyWriterFoundFailure exceptions at the entry or exit of a REST method
+  // that has a parameter or return type whose provider class has been left out.  -BLR
+  mergeServiceFiles()
+}
+
 task createProperties(dependsOn: classes) {
   doLast {
     new File("$buildDir/version.properties").withWriter { w ->
