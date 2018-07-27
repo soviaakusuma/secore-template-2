@@ -53,4 +53,4 @@ echo
 
 echo "Starting $SERVICE with command:"
 set -x
-exec java -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$HEAPDUMPDIR -Xms128M -Xmx256M $JAVA_OPTS -jar "$@" "$APPLICATION_WAR"
+exec java -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=$HEAPDUMPDIR -Xms128M -Xmx256M $JAVA_OPTS -jar "$@" "$APPLICATION_JAR"
