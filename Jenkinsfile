@@ -5,7 +5,7 @@ node {
         echo "VersionNumber: ${versionNumber}"
     }
     stage('Build Gradle project') {
-        sh "gradle clean build"
+        sh "/usr/lib/gradle/4.8.1/bin/gradle clean build"
     }
     stage('Push Docker image') {
         sh "docker tag inomial.io/secore-template inomial.io/secore-template:${versionNumber}"
