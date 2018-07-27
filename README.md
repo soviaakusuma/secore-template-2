@@ -109,3 +109,15 @@ Type `./run -Dname.of.system.property=value ...` to set JVM system properties
 upon startup for this invocation of the microservice *only*. This can be useful
 if you want to enable verbose or diganostic logging on a library your
 microservice uses.
+
+#### Launching the project from out-of-directory
+
+The `run` script will happily work from any current directory; it'll simply figure out
+the relative paths to its requisite inputs and launch the commands with the correct
+paths. For instance, you could launch a new microservice that you haven't yet checked
+out from GitHub with just two shell commands:
+
+  ```sh
+  git clone https://github.com/inomial/secore-template.git /path/to/working/copy/secore-template
+  /path/to/working/copy/secore-template/run
+  ```
