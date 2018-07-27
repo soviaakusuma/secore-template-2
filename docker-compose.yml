@@ -7,5 +7,12 @@ networks:
 services:
   secore-template:
     image: inomial.io/secore-template
+    #ports:
+    # Port assignments as per <https://wiki.inomial.net/home/devstack_host_ports>
+    #  - "172xx:9009"
+    #  - "172xx:8080"
+    environment:
+    # By default, enables the JVM debugger on internal port 9009/tcp.
+      JAVA_OPTS: "${JAVA_OPTS:--agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009}"
     networks:
     - infrastructure

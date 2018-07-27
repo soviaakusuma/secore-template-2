@@ -1,1 +1,17 @@
+// If your microservice application uses Grow, then you'll need to include
+// these declarations at the start of your settings.gradle to ensure that
+// Gradle can load the grow-plugin from the Inomial Maven repository.
+/*
+pluginManagement {
+  repositories {
+    mavenLocal()
+    maven {
+      url 'https://maven.inomial.com/'
+    }
+    gradlePluginPortal()
+  }
+}
+*/
+
+
 rootProject.name = 'secore-template'

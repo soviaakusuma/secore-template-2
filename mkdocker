@@ -9,9 +9,15 @@ set -e
 
 . build/version.properties
 
-printf '\e]1;%s\a' "$SERVICE"
+# Only use --pull option of docker build if we have internet connectivity
+#   (otherwise docker build will fail)
+if ping -q -c1 inomial.io >/dev/null 2>&1; then
+  online_docker_args="--pull"
+else
+  online_docker_args=""
+fi
+
 cp build/libs/$SERVICE-$version-all.jar docker
 pushd docker
-docker build -t inomial.io/$SERVICE --build-arg version=$version .
+docker build $online_docker_args -t inomial.io/$SERVICE --build-arg version=$version .
 popd
-echo "To run: docker run -it --rm --name $SERVICE --network infrastructure inomial.io/$SERVICE"

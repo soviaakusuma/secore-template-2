@@ -11,7 +11,9 @@ buildscript {
 }
 
 plugins {
-  id 'com.github.johnrengelman.shadow' version '2.0.0'
+  id 'com.github.johnrengelman.shadow' version '2.0.4'
+  // If your microsevice needs Grow to manage its DB schema, then uncomment following line:
+  // id 'com.inomial.grow-plugin' version '1.2.2'
 }
 
 apply plugin: "application"
@@ -23,7 +25,7 @@ mainClassName = "com.inomial.template.Main"
 dependencies {
   // Always use the latest secore. I think there's a way to specify the
   // "latest" version in gradle, but I can't remember it.
-  compile 'com.inomial:secore:1.1.9';
+  compile 'com.inomial:secore:1.1.14';
   
   // Include this if you're working with messages
   // compile 'com.inomial:rating-messages:1.0.10'
@@ -56,6 +58,17 @@ shadowJar {
   // NoMessageBodyReaderFoundFailure/NoMessageBodyWriterFoundFailure exceptions at the entry or exit of a REST method
   // that has a parameter or return type whose provider class has been left out.  -BLR
   mergeServiceFiles()
+
+  // If your microservice uses Grow to manage its DB objects, then uncomment the following lines:
+  /*
+  from('src/main/grow') {
+    into("GROW/APPLICATION")
+  }
+
+  from("${buildDir}/tmp/dependencies.grow") {
+    into("GROW/APPLICATION")
+  }
+  */
 }
 
 task createProperties(dependsOn: classes) {
@@ -68,6 +81,8 @@ task createProperties(dependsOn: classes) {
   }
 }
 
+// I would personally recommend using the `./run' script instead of `gradle up',
+// for reasons listed in the comments of the `./run' script.  -BLR
 task up(type: Exec) {
   dependsOn {
     build
@@ -76,7 +91,7 @@ task up(type: Exec) {
 }
 
 // Make Docker
-task mkdocker(type: Exec) {
+task mkdocker(type: Exec, dependsOn: build) {
     commandLine './mkdocker'
 }
 
