@@ -18,9 +18,6 @@ node {
         // tag and push if tests pass (as $revision and as latest)
         sh "docker push inomial.io/secore-template:${versionNumber}"
         sh "docker push inomial.io/secore-template:latest"
-
-        // send email/slack
-        // cleanup images
     }
     stage('Results') {
         currentBuild.displayName = versionNumber
@@ -36,6 +33,7 @@ node {
   } finally {
     // Success or failure, always send notifications
     notifyBuild(currentBuild.result)
+    // cleanup images
   }
 }
 
