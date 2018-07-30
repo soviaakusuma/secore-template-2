@@ -23,8 +23,6 @@ node {
         currentBuild.displayName = versionNumber
         archive '*.tar.gz'
         archive '*/build/libs/*.jar'
-        // cleanup workspace
-        step([$class: 'WsCleanup'])
     }
   } catch (e) {
     // If there was an exception thrown, the build failed
@@ -33,7 +31,9 @@ node {
   } finally {
     // Success or failure, always send notifications
     notifyBuild(currentBuild.result)
-    // cleanup images
+    // cleanup workspace
+    step([$class: 'WsCleanup'])
+    // FIXME: cleanup images
   }
 }
 
