@@ -52,11 +52,12 @@ def notifyBuild(String buildStatus = 'STARTED') {
     color = 'RED'
     colorCode = '#FF0000'
   }
- 
-  // Send notifications
-  slackSend (color: colorCode, message: "${buildStatus}: ${env.JOB_NAME} [<${env.BUILD_URL}|${env.BUILD_NUMBER}>]")
+
+  // send notification if this build was not successful or if the previous build wasn't successful
+  if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESSFUL') {
+    slackSend (color: colorCode, message: "${buildStatus}: ${env.JOB_NAME} [<${env.BUILD_URL}|${env.BUILD_NUMBER}>]")
   
-  emailext (
+    emailext (
       subject: '$DEFAULT_SUBJECT',
       body: '$DEFAULT_CONTENT',
       recipientProviders: [
@@ -67,4 +68,5 @@ def notifyBuild(String buildStatus = 'STARTED') {
       replyTo: '$DEFAULT_REPLYTO',
       to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
     )
+  }
 }
