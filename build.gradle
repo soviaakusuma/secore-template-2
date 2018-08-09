@@ -48,15 +48,7 @@ build {
 }
 
 shadowJar {
-  // cf. <http://imperceptiblethoughts.com/shadow/#controlling_jar_content_merging>
-  // This is needed to ensure that the the "/META-INF/services/javax.ws.rs.ext.Providers" files in the various
-  // RESTeasy-related jars are correctly concatenated together and prevent one file from overwriting the others.
-  //
-  // RESTeasy reads a list of class names from this file location (embedded in the .jar) upon startup to
-  // register the various marshalling/unmarshalling providers; this includes the stock providers (marshalling
-  // primitive types, strings and streams). Allowing this file to be clobbered will result in
-  // NoMessageBodyReaderFoundFailure/NoMessageBodyWriterFoundFailure exceptions at the entry or exit of a REST method
-  // that has a parameter or return type whose provider class has been left out.  -BLR
+  // See. <http://imperceptiblethoughts.com/shadow/#controlling_jar_content_merging>
   mergeServiceFiles()
 
   // If your microservice uses Grow to manage its DB objects, then uncomment the following lines:
@@ -81,18 +73,8 @@ task createProperties(dependsOn: classes) {
   }
 }
 
-// I would personally recommend using the `./run' script instead of `gradle up',
-// for reasons listed in the comments of the `./run' script.  -BLR
-task up(type: Exec) {
-  dependsOn {
-    build
-  }
-  commandLine 'docker-compose', 'up'
-}
-
-// Make Docker
 task mkdocker(type: Exec, dependsOn: build) {
-    commandLine './mkdocker'
+  commandLine './mkdocker'
 }
 
 assemble {
