@@ -13,7 +13,12 @@ export DS_PASSWORD=${DS_PASSWORD:-developer}
 export KAFKA=${KAFKA:-kafka:9092}
 export IDP=${IDP:-'http://idp:8080/auth'}
 
-# Insert grow invocation here if the microservice uses a database.
+# Uncomment grow invocation here if the microservice uses a database.
+#echo "Upgrading the database schema via grow..."
+#(cd /etc/grow && bash ./GROW/com.inomial/grow/bin/grow.sh) || exit $?
+
+# Following line can be used instead of above if using Grow 1.1.8 or later.
+#bash /etc/grow/GROW/com.inomial/grow/bin/grow.sh --dir /etc/grow || exit $?
 
 echo "Starting $SERVICE with environment:"
 # Need to avoid printing any passwords to the Docker logs, but make it clear that the variables are set.
