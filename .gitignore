@@ -27,3 +27,5 @@ build
 
 # In UNIX convention, a filename that ends in tilde is considered a backup of something.
 **/*~
+
+gradlew.bat
