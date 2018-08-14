@@ -1,7 +1,9 @@
-#!/bin/sh -e
+#!/bin/sh
 #
 # Boot script for microservices
 #
+
+set -e
 
 echo "Starting $SERVICE: $0"
 
