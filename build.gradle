@@ -28,7 +28,7 @@ mainClassName = "com.inomial.template.Main"
 dependencies {
   // Always use the latest secore. I think there's a way to specify the
   // "latest" version in gradle, but I can't remember it.
-  compile 'com.inomial:secore:1.1.24';
+  compile 'com.inomial:secore:1.2.0';
   
   //GROW compile 'com.inomial:sql-core:1.1.14';
 
