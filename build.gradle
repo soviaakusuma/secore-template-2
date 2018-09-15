@@ -1,5 +1,7 @@
 /*
  * Template microservice.
+ *
+ * Lines marked "//GROW" should be uncommented if you're writing a Grow based application.
  */
 
 buildscript {
@@ -12,11 +14,12 @@ buildscript {
 
 plugins {
   id 'com.github.johnrengelman.shadow' version '2.0.4'
-  // If your microsevice needs Grow to manage its DB schema, then uncomment following line:
-  // id 'com.inomial.grow-plugin' version '1.2.2'
+  //GROW id 'com.inomial.grow-plugin' version '1.2.2'
 }
 
 apply plugin: "application"
+//GROW apply plugin: "com.inomial.grow-plugin"
+
 
 version = "1.0"
 
@@ -27,6 +30,8 @@ dependencies {
   // "latest" version in gradle, but I can't remember it.
   compile 'com.inomial:secore:1.1.18';
   
+  //GROW compile 'com.inomial:sql-core:1.1.14';
+
   // Include this if you're working with messages
   // compile 'com.inomial:cim:1.0.20'
 
@@ -50,6 +55,8 @@ build {
 shadowJar {
   // See. <http://imperceptiblethoughts.com/shadow/#controlling_jar_content_merging>
   mergeServiceFiles()
+  
+  //GROW dependsOn 'grow'
 
   // If your microservice uses Grow to manage its DB objects, then uncomment the following lines:
   /*

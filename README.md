@@ -32,6 +32,7 @@ To use this template for your own project, follow these very simple steps:
 - update `Jenkinsfile` to change the project name
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
 - build and run the microservice: `./run`
+- To use GROW, uncomment the lines in Dockerfile, entrypoint.sh and build.gradle.
 - update `README.md` to remove these instructions :)
 
 There is plenty of room to improve the template (and this documentation);
