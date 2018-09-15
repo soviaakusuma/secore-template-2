@@ -30,3 +30,6 @@ build
 
 gradlew.bat
 docker/GROW
+
+# Postgresql dump files
+**/*.pgc
