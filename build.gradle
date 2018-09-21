@@ -24,6 +24,10 @@ apply plugin: "application"
 version = "1.0"
 
 mainClassName = "com.inomial.template.Main"
+
+// We don't need these for Docker.
+tasks.distTar.enabled = false
+tasks.distZip.enabled = false
 tasks.shadowDistTar.enabled = false
 tasks.shadowDistZip.enabled = false
 
