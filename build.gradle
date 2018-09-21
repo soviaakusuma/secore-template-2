@@ -24,6 +24,8 @@ apply plugin: "application"
 version = "1.0"
 
 mainClassName = "com.inomial.template.Main"
+tasks.shadowDistTar.enabled = false
+tasks.shadowDistZip.enabled = false
 
 tasks.withType(JavaCompile) {
   options.compilerArgs << '-parameters'
