@@ -3,13 +3,16 @@
 #
 
 FROM inomial.io/openjdk8-jre
-ENV SERVICE=secore-template
+ARG SERVICE
 ARG version
+ENV APPLICATION_JAR_PATH "/opt/inomial.com/$SERVICE/lib"
+ENV MAIN_CLASS "com.inomial.$SERVICE.Main"
 RUN adduser -D -u 1000 $SERVICE
-ENV APPLICATION_JAR "/opt/inomial.com/$SERVICE/$SERVICE-$version-all.jar"
-COPY $SERVICE-$version-all.jar $APPLICATION_JAR
-##GROW COPY GROW /etc/grow/GROW
+
+COPY lib $APPLICATION_JAR_PATH
 COPY entrypoint.sh /opt/inomial.com/
+COPY $SERVICE-$version.jar $APPLICATION_JAR_PATH
+##GROW COPY GROW /etc/grow/GROW
 
 USER 1000
 ENTRYPOINT [ "/opt/inomial.com/entrypoint.sh" ]

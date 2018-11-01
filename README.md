@@ -20,9 +20,6 @@ To use this template for your own project, follow these very simple steps:
 - rename the source directory (ie, from `src/main/java/com/inomial/template`)
 - change package name in `Main.java`
 - change `settings.gradle` to set the project name
-- change `mainClassName` in `build.gradle`
-- replace `$SERVICE` definition in `mkdocker`
-- replace `$SERVICE` definition in `Dockerfile`
 - replace `secore-template` in `docker-compose.yml`
 - if needed, [reserve TCP ports on the local Mac OS X host interface](https://wiki.inomial.net/home/devstack_host_ports)
   for the HTTP and JVM debug listening ports (8080 and 9009 respectively). This will allow you to connect your IDE's
