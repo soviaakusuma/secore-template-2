@@ -93,11 +93,13 @@ task copyToLib( type: Copy ) {
     from configurations.runtime
 }
 
-mkdocker { dependsOn copyToLib }
-
-clean.doFirst {
-    delete fileTree(
+task clearLib( type: Delete ) {
+  delete fileTree(
       dir: 'docker',
       include: ['*.jar', 'lib/**']
     )
 }
+
+mkdocker { dependsOn clearLib, copyToLib }
+
+clean.dependsOn clearLib
