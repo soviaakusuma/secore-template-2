@@ -17,5 +17,13 @@ fi
 
 cp build/libs/$SERVICE-$version.jar docker
 pushd docker
+if [ -f ../build/libs/$SERVICE-$version-grow.jar ]
+then
+  rm -rf GROW
+  jar xf ../build/libs/$SERVICE-$version-grow.jar GROW
+else
+  # Keep Dockerfile happy
+  mkdir -p GROW
+fi
 docker build $online_docker_args -t inomial.io/$SERVICE --build-arg version=$version --build-arg SERVICE=$SERVICE .
 popd

@@ -9,6 +9,11 @@ The [secore cheat sheet](https://github.com/inomial/secore) contains quick
 snippets to get you up and running with secore. Additional information about
 the various secore modules can be found via the links in the cheat sheet.
 
+### News
+
+*NEW* in secore-template-1.1: GROW now works automatically if you include
+a grow dependency (like sql-core).
+
 ### Using the template
 
 This template contains a complete (but useless) secore application.
@@ -21,15 +26,9 @@ To use this template for your own project, follow these very simple steps:
 - change package name in `Main.java`
 - change `settings.gradle` to set the project name
 - replace `secore-template` in `docker-compose.yml`
-- if needed, [reserve TCP ports on the local Mac OS X host interface](https://wiki.inomial.net/home/devstack_host_ports)
-  for the HTTP and JVM debug listening ports (8080 and 9009 respectively). This will allow you to connect your IDE's
-  native debugger to debug the microservice, and use dcurl to invoke the microservice's HTTP REST API.
-- if mapping port 8080 to the host interface, you may also want to update the `DEVSTACK_REDIRS` list in the
-  `bin/dcurl` script in the `inomial/tools` repository, so that `dcurl` will recognise your microservice.
 - update `Jenkinsfile` to change the project name
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
 - build and run the microservice: `./run`
-- To use GROW, uncomment the lines in Dockerfile, entrypoint.sh and build.gradle.
 - update `README.md` to remove these instructions :)
 
 There is plenty of room to improve the template (and this documentation);
@@ -37,10 +36,22 @@ please take a moment to make things better than you found them.
 
 ### Grow support
 
-If your microservice needs to use Grow to manage its DB schema and objects,
-then there are commented-out sections inside the `settings.gradle`,
-`build.gradle` and `docker/entrypoint.sh` scripts that need to be uncommented
-so you can integrate Grow into your application.
+Including a grow dependency such as sql-core or wrangler-client will now
+work automatically.
+
+### JVM and HTTP Debugging
+
+If you want to allow debugging,
+[reserve TCP ports on the local Mac OS X host interface](https://wiki.inomial.net/home/devstack_host_ports)
+for the HTTP and JVM debug listening ports (8080 and 9009 respectively). This will allow you to connect your IDE's
+native debugger to debug the microservice.
+
+Notes:
+- these ports will not be available in production
+- HTTP rest interfaces should always be tested via nginx. Curl will not generally
+  provide enough context to successfully operate.
+- if you really want to port 8080 to the host interface, you may also want to update the `DEVSTACK_REDIRS` list in the
+  `bin/dcurl` script in the `inomial/tools` repository, so that `dcurl` will recognise your microservice.
 
 ### Adding functionality
 
