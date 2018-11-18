@@ -21,7 +21,8 @@ apply plugin: "application"
 //GROW apply plugin: "com.inomial.grow-plugin"
 
 
-version = "1.0"
+version = '1.0'
+mainClassName = "com.inomial.${project.name.replaceAll('-', '.')}.Main"
 
 // We don't need these for Docker.
 tasks.distTar.enabled = false
@@ -71,7 +72,8 @@ task createProperties(dependsOn: classes) {
     new File("$buildDir/version.properties").withWriter { w ->
         Properties p = new Properties()
         p['version'] = project.version.toString()
-        p['SERVICE'] = project.name
+        p['mainClass'] = mainClassName
+        p['project'] = project.name
         p.store w, null
     }
   }

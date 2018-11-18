@@ -16,9 +16,7 @@ This template contains a complete (but useless) secore application.
 To use this template for your own project, follow these very simple steps:
 
 - copy `secore-template` from github 
-- also copy `secore-template/.gitignore` from github
-- rename the source directory (ie, from `src/main/java/com/inomial/template`)
-- change package name in `Main.java`
+- Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common
 - change `settings.gradle` to set the project name
 - replace `secore-template` in `docker-compose.yml`
 - if needed, [reserve TCP ports on the local Mac OS X host interface](https://wiki.inomial.net/home/devstack_host_ports)
@@ -27,9 +25,9 @@ To use this template for your own project, follow these very simple steps:
 - if mapping port 8080 to the host interface, you may also want to update the `DEVSTACK_REDIRS` list in the
   `bin/dcurl` script in the `inomial/tools` repository, so that `dcurl` will recognise your microservice.
 - update `Jenkinsfile` to change the project name
+- To use GROW, uncomment the lines in Dockerfile, entrypoint.sh and build.gradle.
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
 - build and run the microservice: `./run`
-- To use GROW, uncomment the lines in Dockerfile, entrypoint.sh and build.gradle.
 - update `README.md` to remove these instructions :)
 
 There is plenty of room to improve the template (and this documentation);

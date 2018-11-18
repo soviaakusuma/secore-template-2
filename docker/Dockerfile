@@ -3,15 +3,16 @@
 #
 
 FROM inomial.io/openjdk8-jre
-ARG SERVICE
+ARG project
+ARG mainClass
 ARG version
-ENV APPLICATION_JAR_PATH "/opt/inomial.com/$SERVICE/lib"
-ENV MAIN_CLASS "com.inomial.$SERVICE.Main"
-RUN adduser -D -u 1000 $SERVICE
+ENV APPLICATION_JAR_PATH "/opt/inomial.com/$project/lib"
+ENV MAIN_CLASS "$mainClass"
+RUN adduser -D -u 1000 $project
 
 COPY lib $APPLICATION_JAR_PATH
 COPY entrypoint.sh /opt/inomial.com/
-COPY $SERVICE-$version.jar $APPLICATION_JAR_PATH
+COPY $project-$version.jar $APPLICATION_JAR_PATH
 ##GROW COPY GROW /etc/grow/GROW
 
 USER 1000
