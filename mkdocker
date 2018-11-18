@@ -17,5 +17,13 @@ fi
 
 cp build/libs/$project-$version.jar docker
 pushd docker
-docker build $online_docker_args -t inomial.io/$project --build-arg version=$version --build-arg mainClass=$mainClass --build-arg project=$project .
+if [ -f ../build/libs/$project-$version-grow.jar ]
+then
+  rm -rf GROW
+  jar xf ../build/libs/$project-$version-grow.jar GROW
+else
+  # Keep Dockerfile happy
+  mkdir -p GROW
+fi
+docker build $online_docker_args -t inomial.io/$project --build-arg version=$version --build-arg project=$project .
 popd
