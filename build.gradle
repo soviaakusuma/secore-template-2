@@ -104,13 +104,14 @@ task copyToLib( type: Copy ) {
     from configurations.runtime
 }
 
-task clearLib( type: Delete ) {
+task cleanDocker( type: Delete ) {
   delete fileTree(
       dir: 'docker',
       include: ['*.jar', 'lib/**']
     )
+  delete 'docker/GROW'
 }
 
-mkdocker { dependsOn clearLib, copyToLib }
+mkdocker { dependsOn cleanDocker, copyToLib }
 
-clean.dependsOn clearLib
+clean.dependsOn cleanDocker
