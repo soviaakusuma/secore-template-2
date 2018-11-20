@@ -22,6 +22,7 @@ To use this template for your own project, follow these very simple steps:
 
 - copy `secore-template` from github 
 - Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common
+- change `settings.gradle` to set the project name
 - replace `secore-template` in `docker-compose.yml`
 - update `Jenkinsfile` to change the project name
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)

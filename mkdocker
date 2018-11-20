@@ -21,6 +21,7 @@ if [ -f ../build/libs/$project-$version-grow.jar ]
 then
   rm -rf GROW
   jar xf ../build/libs/$project-$version-grow.jar GROW
+  chmod +x GROW/com.inomial/grow/bin/grow.sh
 else
   # Keep Dockerfile happy
   mkdir -p GROW

@@ -9,4 +9,5 @@ pluginManagement {
 }
 
 // Defaults to dirname, but you can override here if you need
-//rootProject.name = 'secore-template'
+// This needs to be set correctly or the build will fail on Jenkins OR Jenkins will publish artefacts to Maven with the wrong name!
+rootProject.name = 'secore-template'
