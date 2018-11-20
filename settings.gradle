@@ -8,4 +8,5 @@ pluginManagement {
   }
 }
 
-rootProject.name = 'secore-template'
+// Defaults to dirname, but you can override here if you need
+//rootProject.name = 'secore-template'

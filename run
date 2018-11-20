@@ -79,7 +79,7 @@ case "$topdir" in
 esac
 
 # Gradle target that compiles and then builds the docker image.
-default_gradle_target=mkdocker
+default_gradle_target=build
 GRADLE_TARGET=${GRADLE_TARGET:-$default_gradle_target}
 # Location of docker-compose.yml file to use
 # cf. https://docs.docker.com/compose/reference/envvars/

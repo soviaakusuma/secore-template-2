@@ -1,4 +1,4 @@
-package com.inomial.template;
+package com.inomial.secore.template;
 
 import com.inomial.secore.mon.MonitoringServer;
 
