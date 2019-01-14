@@ -32,7 +32,7 @@ tasks.withType(JavaCompile) {
 dependencies {
   compile 'com.inomial:secore:1.4.2';
   
-  // Include this, for example, if you want to use grow
+  // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // compile 'com.inomial:sql-core:1.1.+';
 
   // Include this if you're working with messages
@@ -68,7 +68,8 @@ task growJar(type: Jar) {
 
 jar {
   dependsOn 'grow'
-  dependsOn 'growJar'
+//  Uncomment if you want to use grow
+//  dependsOn 'growJar'
 
   manifest {
     attributes(
