@@ -7,6 +7,10 @@ FROM inomial.io/secore-base
 ARG project
 ARG version
 
+# Override the default database name which would otherwise match the SERVICE (project) name if DS_URL is not set
+# For example, if you want turnstile-server to default to using the database called turnstile then set:
+# ENV DS_DATABASE turnstile
+
 ENV SERVICE $project
 ENV VERSION $version
 # ENV UID 1000
