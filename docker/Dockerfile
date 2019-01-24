@@ -17,7 +17,7 @@ ENV VERSION $BUILD_VERSION
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name=$project
-#SET_THIS_LINE LABEL org.label-schema.description="<description of this micro-service>"
+SET_THIS_LINE LABEL org.label-schema.description="<description of this micro-service>"
 LABEL org.label-schema.vcs-url=$VCS_URL
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.vendor="DGIT Systems"
