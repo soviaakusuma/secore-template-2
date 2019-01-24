@@ -10,6 +10,7 @@ set -e
 VCS_URL=$(git config --get remote.origin.url)
 VCS_REF=$(git rev-parse HEAD)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+BUILD_VERSION=${BUILD_VERSION:-latest}
 
 # Only use --pull option of docker build if we have internet connectivity
 #   (otherwise docker build will fail)
@@ -35,6 +36,7 @@ docker build \
         --build-arg version=$version \
         --build-arg project=$project \
         --build-arg BUILD_DATE=$BUILD_DATE \
+        --build-arg BUILD_VERSION="$BUILD_VERSION" \
         --build-arg VCS_URL=$VCS_URL \
         --build-arg VCS_REF=$VCS_REF \
         .
