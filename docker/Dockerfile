@@ -6,13 +6,26 @@ FROM inomial.io/secore-base
 
 ARG project
 ARG version
+ARG BUILD_DATE
+ARG VCS_URL
+ARG VCS_REF
+
+ENV SERVICE $project
+ENV VERSION $version
+
+LABEL org.label-schema.schema-version="1.0"
+LABEL org.label-schema.build-date=$BUILD_DATE
+LABEL org.label-schema.name=$project
+SET_THIS_LINE LABEL org.label-schema.description="<description of this micro-service>"
+LABEL org.label-schema.vcs-url=$VCS_URL
+LABEL org.label-schema.vcs-ref=$VCS_REF
+LABEL org.label-schema.vendor="DGIT Systems"
+LABEL org.label-schema.version=$version
 
 # Override the default database name which would otherwise match the SERVICE (project) name if DS_URL is not set
 # For example, if you want turnstile-server to default to using the database called turnstile then set:
 # ENV DS_DATABASE turnstile
 
-ENV SERVICE $project
-ENV VERSION $version
 # ENV UID 1000
 # ENV GID 1000
 ENV APPLICATION_JAR_PATH "/opt/inomial.com/$project/lib"
