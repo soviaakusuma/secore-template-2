@@ -4,13 +4,20 @@
 #
 
 set -e
+set -u
+
+cd "$(dirname "$0")"
 
 . build/version.properties
 
 VCS_URL=$(git config --get remote.origin.url)
 VCS_REF=$(git rev-parse HEAD)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-BUILD_VERSION=${BUILD_VERSION:-latest}
+
+# abort if running on Jenkins (BUILD_URL is set) but BUILD_VERSION isnt set (this will throw an unbound variable error due to set -u)
+if [ -z "${BUILD_URL:-}" ]; then
+  BUILD_VERSION=${BUILD_VERSION:-latest}
+fi
 
 # Only use --pull option of docker build if we have internet connectivity
 #   (otherwise docker build will fail)
@@ -35,8 +42,9 @@ docker build \
         -t inomial.io/$project \
         --build-arg version=$version \
         --build-arg project=$project \
-        --build-arg BUILD_DATE=$BUILD_DATE \
+        --build-arg description="$description" \
+        --build-arg BUILD_DATE="$BUILD_DATE" \
         --build-arg BUILD_VERSION="$BUILD_VERSION" \
-        --build-arg VCS_URL=$VCS_URL \
-        --build-arg VCS_REF=$VCS_REF \
+        --build-arg VCS_URL="$VCS_URL" \
+        --build-arg VCS_REF="$VCS_REF" \
         .

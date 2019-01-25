@@ -6,6 +6,7 @@ FROM inomial.io/secore-base
 
 ARG project
 ARG version
+ARG description
 ARG BUILD_DATE
 ARG BUILD_VERSION
 ARG VCS_URL
@@ -14,10 +15,11 @@ ARG VCS_REF
 ENV SERVICE $project
 ENV VERSION $BUILD_VERSION
 
+# http://label-schema.org/rc1/
 LABEL org.label-schema.schema-version="1.0"
 LABEL org.label-schema.build-date=$BUILD_DATE
 LABEL org.label-schema.name=$project
-SET_THIS_LINE LABEL org.label-schema.description="<description of this micro-service>"
+LABEL org.label-schema.description=$description
 LABEL org.label-schema.vcs-url=$VCS_URL
 LABEL org.label-schema.vcs-ref=$VCS_REF
 LABEL org.label-schema.vendor="DGIT Systems"

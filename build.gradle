@@ -17,6 +17,11 @@ plugins {
 apply plugin: "application"
 apply plugin: "com.inomial.grow-plugin"
 
+//description = "change me to a brief description of what this application does. this is viewable in `gradle -q projects` and is also set in the container image labels."
+
+if(description == null) {
+  throw new GradleException('description not set in build.gradle')
+}
 
 version = '1.1'
 mainClassName = "com.inomial.${project.name.replaceAll('-', '.')}.Main"
@@ -84,6 +89,7 @@ task createProperties(dependsOn: classes) {
         Properties p = new Properties()
         p['version'] = project.version.toString()
         p['project'] = project.name
+        p['description'] = "'" + project.description + "'"
         p.store w, null
     }
   }
