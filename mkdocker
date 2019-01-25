@@ -13,10 +13,14 @@ cd "$(dirname "$0")"
 VCS_URL=$(git config --get remote.origin.url)
 VCS_REF=$(git rev-parse HEAD)
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+BUILD_VERSION=$(<build.version)
 
-# abort if running on Jenkins (BUILD_URL is set) but BUILD_VERSION isnt set (this will throw an unbound variable error due to set -u)
-if [ -z "${BUILD_URL:-}" ]; then
-  BUILD_VERSION=${BUILD_VERSION:-latest}
+# abort if running on Jenkins (BUILD_URL is set) but BUILD_VERSION is still set to DEV
+if [ "${BUILD_URL:-}" ]; then
+  if [ "$BUILD_VERSION" = DEV ]; then
+    echo "BUILD_VERSION=$BUILD_VERSION not permitted on a Jenkins build." >&2
+    exit 1
+  fi
 fi
 
 # Only use --pull option of docker build if we have internet connectivity

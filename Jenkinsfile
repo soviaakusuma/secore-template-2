@@ -11,7 +11,8 @@ node {
         gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
     }
     stage('Build Gradle project') {
-        sh "BUILD_VERSION=$versionNumber /usr/lib/gradle/4.8.1/bin/gradle clean build"
+        sh "echo ${versionNumber} > build.version"
+        sh "/usr/lib/gradle/4.8.1/bin/gradle clean build"
     }
     stage('Tag') {
         // add tag
