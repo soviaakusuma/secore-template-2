@@ -9,11 +9,6 @@ The [secore cheat sheet](https://github.com/inomial/secore) contains quick
 snippets to get you up and running with secore. Additional information about
 the various secore modules can be found via the links in the cheat sheet.
 
-### News
-
-*NEW* in secore-template-1.1: GROW now works automatically if you include
-a grow dependency (like sql-core).
-
 ### Using the template
 
 This template contains a complete (but useless) secore application.
@@ -29,6 +24,7 @@ To use this template for your own project, follow these very simple steps:
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
 - add the project to a remote git repository. (you can't build without this step).
 - build and run the microservice: `./run`
+- uncomment the lines in build.gradle if you want to use grow.
 - update `README.md` to remove these instructions :)
 
 There is plenty of room to improve the template (and this documentation);
