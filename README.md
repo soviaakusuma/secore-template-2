@@ -22,7 +22,6 @@ To use this template for your own project, follow these very simple steps:
 - replace `secore-template` in `docker-compose.yml`
 - update `Jenkinsfile` to change the project name
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
-- add the project to a remote git repository. (you can't build without this step).
 - build and run the microservice: `./run`
 - uncomment the lines in build.gradle if you want to use grow.
 - update `README.md` to remove these instructions :)
