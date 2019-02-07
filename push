@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+set -u
+
+cd "$(dirname "$0")"
+
+. build/version.properties
+
+versionNumber=$(<build.version)
+
+docker tag inomial.io/${project} inomial.io/${project}:${versionNumber}
+
+# archive image
+#docker save inomial.io/${project}:${versionNumber} | gzip > ${project}-${versionNumber}.tar.gz
+
+# tag and push if tests pass (as $revision and as latest)
+docker push inomial.io/${project}:${versionNumber}
+docker push inomial.io/${project}:latest

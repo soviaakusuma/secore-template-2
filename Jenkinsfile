@@ -1,6 +1,6 @@
 node {
   try {
-    stage('Preparation') {
+    stage('Prepare') {
         //notifyBuild('STARTED')
         checkout scm
         versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: '', buildsAllTime: '12'
@@ -10,10 +10,21 @@ node {
         gitBranch = sh(script: "git name-rev --name-only HEAD", returnStdout: true).trim()
         gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
     }
-    stage('Build Gradle project') {
+    stage('Build') {
         sh "echo ${versionNumber} > build.version"
         sh "/usr/lib/gradle/4.8.1/bin/gradle clean build"
     }
+//    stage('Test') {
+//        try {
+//            sh "./test.sh"
+//        } finally {
+//            sh "docker-compose logs --no-color --timestamps > docker-compose.log 2>&1"
+//            archive 'docker-compose.log'
+//            sh "docker-compose run --rm -T testsql pg_dump -Fc stampede-schema > test.pgc"
+//            archive 'test.pgc'
+//            sh "docker-compose --no-ansi down --volumes --remove-orphans"
+//        }
+//    }
     stage('Tag') {
         // add tag
         sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${gitBranch} commit ${gitCommit} on ${timestamp}\""
@@ -22,19 +33,17 @@ node {
         sh "git push origin \"${versionNumber}\""
     }
     stage('Push Docker image') {
-        sh "docker tag inomial.io/secore-template inomial.io/secore-template:${versionNumber}"
-
-        // archive image
-        sh "docker save inomial.io/secore-template:${versionNumber} | gzip > secore-template-${versionNumber}.tar.gz"
-
-        // tag and push if tests pass (as $revision and as latest)
-        sh "docker push inomial.io/secore-template:${versionNumber}"
-        sh "docker push inomial.io/secore-template:latest"
+        sh "./push"
     }
+//    stage('Publish to Maven') {
+//        sh "gradle -P ssh.user=cruisecontrol upload"
+//    }
     stage('Results') {
         currentBuild.displayName = versionNumber
-        archive '*.tar.gz'
-        archive '*/build/libs/*.jar'
+        archive 'build/reports'
+//        archive 'target/*.jar'
+//        archive 'build/libs/*.jar'
+//        archive '*.tar.gz'
     }
   } catch (e) {
     // If there was an exception thrown, the build failed
