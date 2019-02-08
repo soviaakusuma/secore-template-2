@@ -16,14 +16,9 @@ ENV SERVICE $project
 ENV VERSION $BUILD_VERSION
 
 # http://label-schema.org/rc1/
-LABEL org.label-schema.schema-version="1.0"
-LABEL org.label-schema.build-date=$BUILD_DATE
-LABEL org.label-schema.name=$project
-LABEL org.label-schema.description=$description
-LABEL org.label-schema.vcs-url=$VCS_URL
-LABEL org.label-schema.vcs-ref=$VCS_REF
-LABEL org.label-schema.vendor="DGIT Systems"
-LABEL org.label-schema.version=$BUILD_VERSION
+LABEL org.label-schema.schema-version="1.0" org.label-schema.build-date=$BUILD_DATE org.label-schema.name=$project \
+	org.label-schema.description=$description org.label-schema.vcs-url=$VCS_URL org.label-schema.vcs-ref=$VCS_REF \
+	org.label-schema.vendor="DGIT Systems" org.label-schema.version=$BUILD_VERSION
 
 # Override the default database name which would otherwise match the SERVICE (project) name if DS_URL is not set
 # For example, if you want turnstile-server to default to using the database called turnstile then set:
