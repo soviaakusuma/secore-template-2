@@ -10,13 +10,19 @@ cd "$(dirname "$0")"
 
 . build/version.properties
 
-# if running on Jenkins or if .git directory exists then determine the git origin and commit reference
-if [ "${BUILD_URL:-}" ] || [ -d .git ]; then
-  VCS_URL=$(git config --get remote.origin.url)
-  VCS_REF=$(git rev-parse HEAD)
+# if running on Jenkins then determine the git origin and commit reference
+if [ "${BUILD_URL:-}" ] || git config --get remote.origin.url >/dev/null; then
+  VCS_URL=$(git config --get remote.origin.url) || {
+    echo 'no git remote origin url configured' >&2
+    false
+  }
 else
-  VCS_URL='Not a git repository'
-  VCS_REF=''
+  VCS_URL='Not a remote git repository'
+fi
+if [ "${BUILD_URL:-}" ] || git log --pretty=format:'%H' -n 1 >/dev/null; then
+  VCS_REF=$(git log --pretty=format:'%H' -n 1)
+else
+  VCS_REF=$(git log --pretty=format:'%H' -n 1 2>&1) || true
 fi
 
 BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
