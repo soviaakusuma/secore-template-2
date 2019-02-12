@@ -11,9 +11,7 @@ else
   app=${app:-$(basename "`pwd`")}
 fi
 
-export COMPOSE_PROJECT_NAME=${app}-test
-
-docker_compose_opts='-f docker-compose.yml -f docker-compose-test.yml'
+docker_compose_opts="--project-name=${app}-test -f docker-compose.yml -f docker-compose-test.yml"
 
 # cleanup anything that could be left behind from a previous run
 docker-compose $docker_compose_opts --no-ansi down --volumes --remove-orphans
