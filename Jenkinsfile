@@ -14,17 +14,13 @@ node {
         sh "echo ${versionNumber} > build.version"
         sh "/usr/lib/gradle/4.8.1/bin/gradle clean build"
     }
-//    stage('Test') {
-//        try {
-//            sh "./test.sh"
-//        } finally {
-//            sh "docker-compose logs --no-color --timestamps > docker-compose.log 2>&1"
-//            archive 'docker-compose.log'
-//            sh "docker-compose run --rm -T testsql pg_dump -Fc stampede-schema > test.pgc"
-//            archive 'test.pgc'
-//            sh "docker-compose --no-ansi down --volumes --remove-orphans"
-//        }
-//    }
+    stage('Test') {
+        try {
+            sh "./test.sh"
+        } finally {
+            archive 'test-results/*'
+        }
+    }
     stage('Tag') {
         // add tag
         sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${gitBranch} commit ${gitCommit} on ${timestamp}\""
@@ -40,10 +36,10 @@ node {
 //    }
     stage('Results') {
         currentBuild.displayName = versionNumber
-        archive 'build/reports'
-//        archive 'target/*.jar'
-//        archive 'build/libs/*.jar'
-//        archive '*.tar.gz'
+        archive '**/build/reports'
+        archive '**/build/libs/*.jar'
+        archive 'target/*.jar'
+        archive '*.tar.gz'
     }
   } catch (e) {
     // If there was an exception thrown, the build failed

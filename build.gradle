@@ -38,7 +38,7 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-  compile 'com.inomial:secore:1.4.2';
+  compile 'com.inomial:secore:2.0.0';
   
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // compile 'com.inomial:sql-core:1.1.+';
