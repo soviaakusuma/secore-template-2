@@ -16,6 +16,7 @@ This template contains a complete (but useless) secore application.
 To use this template for your own project, follow these very simple steps:
 
 - copy `secore-template` from github 
+- Make sure you also copy .gitignore and .env from secore-template
 - Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common
 - change `settings.gradle` to set the project name
 - change `build.gradle` to set the project description
