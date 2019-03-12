@@ -19,7 +19,8 @@ To use this template for your own project, follow these very simple steps:
 - Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common
 - change `settings.gradle` to set the project name
 - change `build.gradle` to set the project description
-- replace `secore-template` in `docker-compose.yml` and `docker-compose-test.yml`
+- replace `secore-template` in `docker-compose.yml`
+- replace 'secore-template` in `docker-compose-test.yml`
 - run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
 - build and run the microservice: `./run`
 - uncomment the lines in build.gradle if you want to use grow.
