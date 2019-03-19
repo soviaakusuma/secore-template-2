@@ -52,10 +52,11 @@ timeout() {
 }
 
 # wait for postgres to ready up
-timeout 60 docker-compose $docker_compose_opts exec -Tu postgres postgres sh -c "until psql -h 127.0.0.1 -U \"\$POSTGRES_USER\" \"\$POSTGRES_DB\" -ec '\q'; do echo 'Postgres is unavailable - sleeping'; sleep 1; done"
+timeout 60 docker-compose $docker_compose_opts exec -Tu postgres postgres sh -c "until psql -h 127.0.0.1 -U \"\$POSTGRES_USER\" \"\$POSTGRES_DB\" -ec '\q'; do echo 'Postgres is unavailable - sleeping'; sleep 1; done" </dev/null
 
 # start container with GROW=init and wait for it to exit (start attached with timeout)
 GROW=init timeout 60 docker-compose $docker_compose_opts --no-ansi up --exit-code-from $app $app
 
 # run sql tests
-timeout 300 docker-compose $docker_compose_opts --no-ansi up --exit-code-from testsql testsql
+TIMEOUT=300
+COMPOSE_HTTP_TIMEOUT=$(($TIMEOUT*2)) timeout $TIMEOUT docker-compose $docker_compose_opts --no-ansi up --exit-code-from testsql testsql
