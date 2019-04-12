@@ -68,9 +68,16 @@ elif [ "`which gradle`" ]; then
 fi
 if [ -e ../../../build/version.properties ]; then
   . "../../../build/version.properties"
-  grow_jar=../../../build/libs/$project-$version-grow.jar
+  for grow_jar in ../../../build/libs/$project-$version-grow.jar ../../../build/libs/$project-$version.jar; do
+    [ -e "$grow_jar" ] && break
+  done
 else
   grow_jar=$(ls -1t ../../../build/libs/$project-*-grow.jar|head -n1)
+fi
+
+if [ ! -e "$grow_jar" ]; then
+  echo "grow_jar '$grow_jar' not found, aborting." >&2
+  exit 1
 fi
 
 export PGOPTIONS='--client-min-messages=warning'
