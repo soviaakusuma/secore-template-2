@@ -1,4 +1,8 @@
 node {
+  // request specific Java version
+  env.JAVA_HOME="${tool 'jdk11'}"
+  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+  
   try {
     stage('Prepare') {
         //notifyBuild('STARTED')
