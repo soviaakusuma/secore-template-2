@@ -125,3 +125,15 @@ task cleanDocker( type: Delete ) {
 mkdocker { dependsOn cleanDocker, copyToLib }
 
 clean.dependsOn cleanDocker
+
+// Add sources jar
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+  // Include source archive in Inomial Maven repository so Javadoc descriptions are available.
+  archives sourcesJar
+}
+
