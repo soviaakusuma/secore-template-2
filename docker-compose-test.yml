@@ -26,6 +26,8 @@ services:
       PGPORT: 5432
       PGUSER: ${APP_POSTGRES_USER}
       PGPASSWORD: ${APP_POSTGRES_PASSWORD}
+      PGUSER_SUPER: ${POSTGRES_USER}
+      PGPASSWORD_SUPER: ${POSTGRES_PASSWORD}
       TEST_DB: ${APP_POSTGRES_DATABASE}
     networks:
     - infrastructure
