@@ -157,9 +157,9 @@ fi
 # The shell script that launches Gradle uses JAVA_OPTS to pass on any arguments to the Gradle JVM, so we
 # should only export this variable for docker-compose once we're done with Gradle. 
 if [ $do_debug -eq 1 ]; then
-  export JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009 $jvm_passthru_args"
+  export JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:9009 $jvm_passthru_args"
 else
-  export JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009 $jvm_passthru_args"
+  export JAVA_OPTS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9009 $jvm_passthru_args"
 fi
 
 # Determine the docker service name for this project
