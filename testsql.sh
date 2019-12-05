@@ -90,7 +90,7 @@ printline() {
   printf '%*s\n' "${COLUMNS:-150}" '' | tr ' ' -
 }
 
-sqltests=( $(find . -type f -name '*.sql' -and ! -path './init.sql') )
+sqltests=( $(find . -type f -name '*.sql' -and ! -path './init.sql' | sort) )
 
 if [ "$sqltests" ]; then
   echo -n "Checking database connection... "
