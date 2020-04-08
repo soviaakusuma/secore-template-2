@@ -15,6 +15,7 @@ services:
       TZ: ${TZ-Australia/Melbourne}
     networks:
     - infrastructure
+    command: ['postgres', '-c', 'dgit.principal=', '-c', 'dgit.tid=']
 
   testsql:
     # need an image with psql and either unzip or jar
