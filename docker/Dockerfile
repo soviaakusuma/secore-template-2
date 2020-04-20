@@ -34,12 +34,11 @@ RUN addgroup -g $GID $project \
 # VOLUME /data
 
 # Because this command uses $BUILD_DATE it will always invalidate the cache - keep at the bottom
-# http://label-schema.org/rc1/
-LABEL org.label-schema.schema-version="1.0" \
-      org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.name=$project \
-      org.label-schema.description=$description \
-      org.label-schema.vcs-url=$VCS_URL \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vendor="DGIT Systems" \
-      org.label-schema.version=$BUILD_VERSION
+# https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL org.opencontainers.image.created=$BUILD_DATE \
+      org.opencontainers.image.title=$project \
+      org.opencontainers.image.description=$description \
+      org.opencontainers.image.source=$VCS_URL \
+      org.opencontainers.image.revision=$VCS_REF \
+      org.opencontainers.image.vendor="DGIT Systems" \
+      org.opencontainers.image.version=$BUILD_VERSION
