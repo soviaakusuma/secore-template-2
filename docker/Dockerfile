@@ -19,6 +19,10 @@ ENV VERSION $BUILD_VERSION
 # For example, if you want turnstile-server to default to using the database called turnstile then set:
 # ENV DS_DATABASE turnstile
 
+# If QL needs to access the database of this service then you can set the following to trigger the fix-roles 
+# component in grow to grant the readonly role to the ql@ql role (this can be a space delimited list).
+# ENV GROW_ROLE_MEMBERS_RO ql@ql
+
 # ENV UID 1000
 # ENV GID 1000
 ENV APPLICATION_JAR_PATH "/opt/inomial.com/$project/lib"
