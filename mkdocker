@@ -49,7 +49,7 @@ cd docker
 if [ -f "../build/libs/$project-$version-grow.jar" ]; then
   rm -rf GROW
   jar xf "../build/libs/$project-$version-grow.jar" GROW
-  chmod +x GROW/com.inomial/grow/bin/grow.sh
+  chmod +x GROW/com.inomial/grow/bin/{fix-*,grow}.sh
 
   # filter out the invalid grow dependencies at build time so grow doesnt have to do it at run time.
   # grow-plugin includes all dependencies in dependencies.grow, including those which dont have a grow schema.
