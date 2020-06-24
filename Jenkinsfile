@@ -1,93 +1,147 @@
-node {
-  // request specific Java version
-  env.JAVA_HOME="${tool 'jdk11'}"
-  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
-  
-  try {
-    stage('Prepare') {
-        //notifyBuild('STARTED')
-        checkout scm
-        versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: '', buildsAllTime: '12'
-        echo "VersionNumber: ${versionNumber}"
-        timestamp = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy-MM-dd HH:mm:ss Z"}'
-        echo "timestamp: ${timestamp}"
-        gitBranch = sh(script: "git name-rev --name-only HEAD", returnStdout: true).trim()
-        gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+pipeline {
+    agent any
+
+    environment {
+        // request specific Java version
+        JAVA_HOME = "${tool 'jdk11'}"
+        PATH      = "${env.JAVA_HOME}/bin:${env.PATH}"
     }
-    stage('Build') {
-        sh "echo ${versionNumber} > build.version"
-        sh "/usr/lib/gradle/4.8.1/bin/gradle clean build"
+
+    triggers {
+//        pollSCM('H/10 * * * *')
+//        cron(BRANCH_NAME == "master" ? "H 14 * * 2" : "")
+        upstream(upstreamProjects: "secore PUBLISH/master", threshold: hudson.model.Result.SUCCESS)
     }
-    stage('Test') {
-        try {
-            sh "./test.sh"
-        } finally {
-            archive 'test-results/*'
+
+    stages {
+        stage('Prepare') {
+            steps {
+                script {
+                    versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: ''
+                    currentBuild.displayName = versionNumber
+                    timestamp = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy-MM-dd HH:mm:ss Z"}'
+                    gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+                    gradleVersion = sh(script: "awk -F= '\$1==\"distributionUrl\"{print\$2}' gradle/wrapper/gradle-wrapper.properties|sed -n 's/.*\\/gradle-\\(.*\\)-bin\\.zip\$/\\1/p'", returnStdout: true).trim()
+                    gradle = "/usr/lib/gradle/${gradleVersion}/bin/gradle"
+                }
+                echo "Building from commit ${gitCommit} in ${BRANCH_NAME} branch at ${timestamp}"
+                echo "VersionNumber: ${versionNumber}"
+                echo "GradleVersion: ${gradleVersion}"
+                sh "if [ ! -x \"$gradle\" ]; then echo \"Gradle version not available, try: \$(ls -1 /usr/lib/gradle/|tr '\n' ' ')\"; exit 1; fi"
+                sh 'java -version'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "echo ${versionNumber} > build.version"
+                sh "${gradle} clean build"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh "./test.sh"
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/test-results/**'
+//                    junit '**/build/test-results/**/*.xml'
+                }
+            }
+        }
+        stage('Tag') {
+            when {
+                branch 'master'
+            }
+            steps {
+                // add tag
+                sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${BRANCH_NAME} commit ${gitCommit} on ${timestamp}\""
+
+                // push tag
+                sh "git push origin \"${versionNumber}\""
+            }
+        }
+        stage('Release') {
+            when {
+                branch 'master'
+            }
+            parallel {
+//                stage('Publish to Maven') {
+//                    steps {
+//                        sh "${gradle} -P ssh.user=cruisecontrol upload"
+//                    }
+//                }
+//                stage('Archive Docker image') {
+//                    steps {
+//                        // archive image
+//                        sh "docker save inomial.io/secore-base:${versionNumber} | gzip > secore-base-${versionNumber}.tar.gz"
+//                        archiveArtifacts artifacts: '*.tar.gz', fingerprint: true
+//                    }
+//                }
+                stage('Push Docker image') {
+                    steps {
+                        sh "./push"
+                    }
+                }
+            }
         }
     }
-    stage('Tag') {
-        // add tag
-        sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${gitBranch} commit ${gitCommit} on ${timestamp}\""
 
-        // push tag
-        sh "git push origin \"${versionNumber}\""
-    }
-    stage('Push Docker image') {
-        sh "./push"
-    }
-//    stage('Publish to Maven') {
-//        sh "gradle -P ssh.user=cruisecontrol upload"
-//    }
-    stage('Results') {
-        currentBuild.displayName = versionNumber
-        archive '**/build/reports'
-        archive '**/build/libs/*.jar'
-        archive 'target/*.jar'
-        archive '*.tar.gz'
-    }
-  } catch (e) {
-    // If there was an exception thrown, the build failed
-    currentBuild.result = "FAILED"
-    throw e
-  } finally {
-    // Success or failure, always send notifications
-    notifyBuild(currentBuild.result)
-    // cleanup workspace
-    step([$class: 'WsCleanup'])
-    // FIXME: cleanup images
-  }
-}
+    post {
+        always {
+            script {
+                // build status of null means successful
+                buildStatus = currentBuild.result ?: 'SUCCESS'
 
-def notifyBuild(String buildStatus = 'STARTED') {
-  // build status of null means successful
-  buildStatus =  buildStatus ?: 'SUCCESSFUL'
- 
-  // Override default values based on build status
-  if (buildStatus == 'STARTED') {
-    color = 'YELLOW'
-    colorCode = '#FFFF00'
-  } else if (buildStatus == 'SUCCESSFUL') {
-    color = 'GREEN'
-    colorCode = '#00FF00'
-  } else {
-    color = 'RED'
-    colorCode = '#FF0000'
-  }
+                // Override default values based on build status
+                if (buildStatus == 'STARTED' || buildStatus == 'UNSTABLE') {
+                    color = 'YELLOW'
+                    colorCode = '#d69d46'
+                } else if (buildStatus == 'SUCCESS') {
+                    color = 'GREEN'
+                    colorCode = '#43b688'
+                } else {
+                    color = 'RED'
+                    colorCode = '#9e040e'
+                }
 
-  // send notification if this build was not successful or if the previous build wasn't successful
-  if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESSFUL') {
-    slackSend (color: colorCode, message: "${buildStatus}: ${env.JOB_NAME} [<${env.BUILD_URL}|${env.BUILD_NUMBER}>]")
-  
-    emailext (
-      subject: '$DEFAULT_SUBJECT',
-      body: '$DEFAULT_CONTENT',
-      recipientProviders: [
-          [$class: 'CulpritsRecipientProvider'],
-          [$class: 'DevelopersRecipientProvider'],
-          [$class: 'RequesterRecipientProvider']
-      ], 
-      replyTo: '$DEFAULT_REPLYTO',
-      to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
-    )
-  }
+                // send notification if this build was not successful or if the previous build wasn't successful
+                if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESS') {
+                    slackSend (
+                        color: colorCode,
+                        message: "${buildStatus}: ${env.JOB_NAME} [<${env.BUILD_URL}|${env.BUILD_NUMBER}>]"
+                    )
+
+                    emailext (
+                        subject: '$DEFAULT_SUBJECT',
+                        body: '$DEFAULT_CONTENT',
+                        recipientProviders: [
+                            [$class: 'CulpritsRecipientProvider'],
+                            [$class: 'DevelopersRecipientProvider'],
+                            [$class: 'RequesterRecipientProvider']
+                        ],
+                        replyTo: '$DEFAULT_REPLYTO',
+                        to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
+                    )
+                }
+            }
+
+            archiveArtifacts artifacts: '**/build/libs/**/*.jar', fingerprint: true
+//            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true, allowEmptyArchive: true
+//            archiveArtifacts artifacts: '**/build/reports'
+        }
+
+        cleanup {
+            // cleanup workspace
+            cleanWs disableDeferredWipeout: true
+        }
+    }
+
+    options {
+//        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr:'20'))
+        timeout(time: 60, unit: 'MINUTES')
+        skipStagesAfterUnstable()
+        timestamps()
+        ansiColor('xterm')
+    }
 }
