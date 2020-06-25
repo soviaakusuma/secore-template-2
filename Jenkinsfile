@@ -17,8 +17,12 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: ''
-                    currentBuild.displayName = versionNumber
+                    if (env.BRANCH_NAME == 'master') {
+                        versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: ''
+                        currentBuild.displayName = versionNumber
+                    } else {
+                        versionNumber = env.BUILD_NUMBER
+                    }
                     timestamp = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy-MM-dd HH:mm:ss Z"}'
                     gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
                     gradleVersion = sh(script: "awk -F= '\$1==\"distributionUrl\"{print\$2}' gradle/wrapper/gradle-wrapper.properties|sed -n 's/.*\\/gradle-\\(.*\\)-bin\\.zip\$/\\1/p'", returnStdout: true).trim()
