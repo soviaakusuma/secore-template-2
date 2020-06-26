@@ -76,8 +76,7 @@ pipeline {
 //                }
 //                stage('Archive Docker image') {
 //                    steps {
-//                        // archive image
-//                        sh "docker save inomial.io/secore-base:${versionNumber} | gzip > secore-base-${versionNumber}.tar.gz"
+//                        sh "./push archive"
 //                        archiveArtifacts artifacts: '*.tar.gz', fingerprint: true
 //                    }
 //                }

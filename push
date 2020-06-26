@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -e
-set -u
+set -euo pipefail
 
 cd "$(dirname "$0")"
 
@@ -9,11 +8,13 @@ cd "$(dirname "$0")"
 
 versionNumber=$(<build.version)
 
-docker tag inomial.io/${project} inomial.io/${project}:${versionNumber}
+docker tag "inomial.io/${project}" "inomial.io/${project}:${versionNumber}"
 
-# archive image
-#docker save inomial.io/${project}:${versionNumber} | gzip > ${project}-${versionNumber}.tar.gz
-
-# tag and push if tests pass (as $revision and as latest)
-docker push inomial.io/${project}:${versionNumber}
-docker push inomial.io/${project}:latest
+if [ "${1:-}" = archive ]; then
+  # archive image
+  docker save "inomial.io/${project}:${versionNumber}" | gzip > "${project}-${versionNumber}.tar.gz"
+else
+  # push image
+  docker push "inomial.io/${project}:${versionNumber}"
+  docker push "inomial.io/${project}:latest"
+fi
