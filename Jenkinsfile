@@ -19,9 +19,11 @@ pipeline {
                 script {
                     if (env.BRANCH_NAME == 'master') {
                         versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: ''
+                        versionNumberInt = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyMM"}${BUILDS_THIS_MONTH, XXX}', versionPrefix: ''
                         currentBuild.displayName = versionNumber
                     } else {
                         versionNumber = env.BUILD_NUMBER
+                        versionNumberInt = 'null'
                     }
                     timestamp = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy-MM-dd HH:mm:ss Z"}'
                     gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
@@ -29,7 +31,7 @@ pipeline {
                     gradle = "/usr/lib/gradle/${gradleVersion}/bin/gradle"
                 }
                 echo "Building from commit ${gitCommit} in ${BRANCH_NAME} branch at ${timestamp}"
-                echo "VersionNumber: ${versionNumber}"
+                echo "VersionNumber: ${versionNumber} / ${versionNumberInt}"
                 echo "GradleVersion: ${gradleVersion}"
                 sh "if [ ! -x \"$gradle\" ]; then echo \"Gradle version not available, try: \$(ls -1 /usr/lib/gradle/|tr '\n' ' ')\"; exit 1; fi"
                 sh 'java -version'
@@ -37,6 +39,7 @@ pipeline {
         }
         stage('Build') {
             steps {
+                sh "if [ -d src/main/grow ] && [ '${versionNumberInt}' != null ]; then echo ${versionNumberInt} > src/main/grow/package.version; fi"
                 sh "echo ${versionNumber} > build.version"
                 sh "${gradle} clean build"
             }
@@ -97,13 +100,10 @@ pipeline {
 
                 // Override default values based on build status
                 if (buildStatus == 'STARTED' || buildStatus == 'UNSTABLE') {
-                    color = 'YELLOW'
                     colorCode = '#d69d46'
                 } else if (buildStatus == 'SUCCESS') {
-                    color = 'GREEN'
                     colorCode = '#43b688'
                 } else {
-                    color = 'RED'
                     colorCode = '#9e040e'
                 }
 
