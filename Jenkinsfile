@@ -111,7 +111,7 @@ pipeline {
                 if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESS') {
                     slackSend (
                         color: colorCode,
-                        message: "${buildStatus}: ${env.JOB_NAME} [<${env.BUILD_URL}|${env.BUILD_NUMBER}>]"
+                        message: "${buildStatus}: ${env.JOB_NAME} [<${env.RUN_DISPLAY_URL}|${env.BUILD_DISPLAY_NAME}>]"
                     )
 
                     emailext (
