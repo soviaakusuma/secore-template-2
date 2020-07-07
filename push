@@ -12,7 +12,7 @@ docker tag "inomial.io/${project}" "inomial.io/${project}:${versionNumber}"
 
 if [ "${1:-}" = archive ]; then
   # archive image
-  docker save "inomial.io/${project}:${versionNumber}" | gzip > "${project}-${versionNumber}.tar.gz"
+  docker save "inomial.io/${project}:${versionNumber}" | pigz > "${project}-${versionNumber}.tar.gz"
 else
   # push image
   docker push "inomial.io/${project}:${versionNumber}"
