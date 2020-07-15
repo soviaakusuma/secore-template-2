@@ -33,7 +33,8 @@ COPY $APPLICATION_JAR $APPLICATION_JAR_PATH
 COPY GROW /opt/inomial.com/GROW
 
 RUN addgroup -g $GID $project \
- && adduser -D -h /data -u $UID -G $project $project
+ && adduser -D -h /data -u $UID -G $project $project \
+ && apk --no-cache upgrade
 
 # VOLUME /data
 

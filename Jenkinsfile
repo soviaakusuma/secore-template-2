@@ -95,36 +95,8 @@ pipeline {
     post {
         always {
             script {
-                // build status of null means successful
-                buildStatus = currentBuild.result ?: 'SUCCESS'
-
-                // Override default values based on build status
-                if (buildStatus == 'STARTED' || buildStatus == 'UNSTABLE') {
-                    colorCode = '#d69d46'
-                } else if (buildStatus == 'SUCCESS') {
-                    colorCode = '#43b688'
-                } else {
-                    colorCode = '#9e040e'
-                }
-
-                // send notification if this build was not successful or if the previous build wasn't successful
-                if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESS') {
-                    slackSend (
-                        color: colorCode,
-                        message: "${buildStatus}: ${env.JOB_NAME} [<${env.RUN_DISPLAY_URL}|${env.BUILD_DISPLAY_NAME}>]"
-                    )
-
-                    emailext (
-                        subject: '$DEFAULT_SUBJECT',
-                        body: '$DEFAULT_CONTENT',
-                        recipientProviders: [
-                            [$class: 'CulpritsRecipientProvider'],
-                            [$class: 'DevelopersRecipientProvider'],
-                            [$class: 'RequesterRecipientProvider']
-                        ],
-                        replyTo: '$DEFAULT_REPLYTO',
-                        to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
-                    )
+                if (env.BRANCH_NAME == 'master') {
+                    notifyBuild()
                 }
             }
 
@@ -146,5 +118,39 @@ pipeline {
         skipStagesAfterUnstable()
         timestamps()
         ansiColor('xterm')
+    }
+}
+
+def notifyBuild() {
+    // build status of null means successful
+    buildStatus = currentBuild.result ?: 'SUCCESS'
+
+    // Override default values based on build status
+    if (buildStatus == 'STARTED' || buildStatus == 'UNSTABLE') {
+        colorCode = '#d69d46'
+    } else if (buildStatus == 'SUCCESS') {
+        colorCode = '#43b688'
+    } else {
+        colorCode = '#9e040e'
+    }
+
+    // send notification if this build was not successful or if the previous build wasn't successful
+    if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESS') {
+        slackSend (
+            color: colorCode,
+            message: "${buildStatus}: ${env.JOB_NAME} [<${env.RUN_DISPLAY_URL}|${env.BUILD_DISPLAY_NAME}>]"
+        )
+
+        emailext (
+            subject: '$DEFAULT_SUBJECT',
+            body: '$DEFAULT_CONTENT',
+            recipientProviders: [
+                [$class: 'CulpritsRecipientProvider'],
+                [$class: 'DevelopersRecipientProvider'],
+                [$class: 'RequesterRecipientProvider']
+            ],
+            replyTo: '$DEFAULT_REPLYTO',
+            to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
+        )
     }
 }
