@@ -10,7 +10,7 @@ pipeline {
     triggers {
 //        pollSCM('H/10 * * * *')
 //        cron(BRANCH_NAME == "master" ? "H 14 * * 2" : "")
-        upstream(upstreamProjects: "secore PUBLISH/master", threshold: hudson.model.Result.SUCCESS)
+        upstream(upstreamProjects: "DockerBuild_secore-base/master", threshold: hudson.model.Result.SUCCESS)
     }
 
     stages {
