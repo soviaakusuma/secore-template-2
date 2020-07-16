@@ -50,7 +50,7 @@ pipeline {
             }
             post {
                 always {
-                    archiveArtifacts artifacts: '**/test-results/**'
+                    archiveArtifacts artifacts: '**/test-results/**', excludes: '**/test-results/**/binary/**'
 //                    junit '**/build/test-results/**/*.xml'
                 }
             }
