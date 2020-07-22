@@ -13,8 +13,10 @@ buildscript {
 }
 
 plugins {
+  id 'java'
   id 'com.inomial.grow-plugin' version '1.2.2'
   id "com.github.ben-manes.versions" version "0.33.0"
+  id 'io.spring.dependency-management' version '1.0.1.RELEASE'
 }
 
 apply plugin: "application"
@@ -22,11 +24,10 @@ apply plugin: "com.inomial.grow-plugin"
 
 // description = "change me to a brief description of what this application does. this is viewable in `gradle -q projects` and is also set in the container image labels."
 
-if(description == null) {
+if (description == null) {
   throw new GradleException('description not set in build.gradle')
 }
 
-//version = '1.1'
 // let Jenkins choose the version
 version = file('build.version').text.trim()
 
@@ -40,29 +41,69 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << '-parameters'
 }
 
+// runtime logging dependencies
+dependencyManagement {
+  imports {
+    mavenBom 'org.apache.logging.log4j:log4j-bom:2.13.3'
+  }
+}
+
 dependencies {
   // use `./gradlew dependencyUpdates` to check for updates to these dependencies
 
-  compile 'com.inomial:secore:2.0.0';
-  
+  // Use this API to log
+  implementation 'org.slf4j:slf4j-api:1.7.30'
+
+  // Supply log4j2 logging implementation, plus slf4j bindings.
+  implementation 'com.telflow.logging:telflow-logging:10.10.6'
+  implementation 'org.apache.logging.log4j:log4j-api'
+  implementation 'org.apache.logging.log4j:log4j-core'
+  // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
+  implementation 'org.slf4j:jul-to-slf4j:1.7.30'
+  implementation 'org.apache.logging.log4j:log4j-1.2-api'
+  implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+  implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
+
+  implementation 'com.inomial:secore:3.0.2'
+
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // compile 'com.inomial:sql-core:1.1.+';
 
   // Include this if you're working with messages
   // compile 'com.inomial:cim:1.0.+'
 
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.12'
 }
 
 repositories {
-// we should avoid mavenLocal(), see https://docs.gradle.org/current/userguide/declaring_repositories.html#sec:case-for-maven-local
-  if(version == "DEV") {
-    mavenLocal()
-  }
   maven {
     url "https://maven.inomial.com/"
+    content {
+      includeGroupByRegex "com\\.inomial.*"
+    }
   }
+  maven {
+    url "https://nexus.office.dgit.biz:8443/nexus/content/repositories/dgit-maven-releases"
+    mavenContent {
+      releasesOnly()
+    }
+    content {
+      includeGroupByRegex "com\\.telflow.*"
+      includeGroupByRegex "com\\.dgitsystems.*"
+    }
+  }
+
   mavenCentral()
+
+  if (version == "DEV") {
+    mavenLocal {
+      content {
+        includeGroupByRegex "com\\.inomial.*"
+        includeGroupByRegex "com\\.telflow.*"
+        includeGroupByRegex "com\\.dgitsystems.*"
+      }
+    }
+  }
 }
 
 task growJar(type: Jar, dependsOn: configurations.runtimeClasspath) {
@@ -119,7 +160,7 @@ build.finalizedBy(mkdocker)
 
 task copyToLib( type: Copy ) {
     into "docker/lib"
-    from configurations.runtime
+    from configurations.runtimeClasspath
 }
 
 task cleanDocker( type: Delete ) {
@@ -144,4 +185,3 @@ artifacts {
   // Include source archive in Inomial Maven repository so Javadoc descriptions are available.
   archives sourcesJar
 }
-

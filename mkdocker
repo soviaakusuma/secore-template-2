@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This builds and runs a microservice.
+# This builds a microservice.
 #
 
 set -e

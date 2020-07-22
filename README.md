@@ -14,7 +14,8 @@ the various secore modules can be found via the links in the cheat sheet.
 This template contains a complete (but useless) secore application.
 
 To use this template for your own project, follow these very simple steps:
-- Clone `secore-template` from github (delete Jenkinsfile.secore-template-test). You can use `-o template` in the clone command to use `template` as the remote
+- Clone `secore-template` from github (delete Jenkinsfile.secore-template-test).
+  You can use `-o template` in the clone command to use `template` as the remote
   name instead of `origin`. This will allow you to keep the template repo as a secondary upstream to pull future updates.
 - Make sure you also copy .gitignore and .env from secore-template.
 
@@ -40,17 +41,17 @@ To use this template for your own project, follow these very simple steps:
 - Build with `mvn clean install`.
 - Run with `mvn exec:java`.
 - Delete Inomial files: `rm -r *gradle* *Jenkins* docker/Dockerfile run push docker-compose-test.yml mkdocker test*.sh postgres-init.sh build.version`.
-- Update `README.md` to remove these instructions :)
+- Update `README.md` to describe the new application :)
 
 There is plenty of room to improve the template (and this documentation);
 please take a moment to make things better than you found them.
 
-### Grow support
+### Grow support (Inomial)
 
 Including a grow dependency such as sql-core or wrangler-client will now
 work automatically.
 
-### JVM and HTTP Debugging
+### JVM and HTTP Debugging (Inomial)
 
 If you want to allow debugging,
 [reserve TCP ports on the local Mac OS X host interface](https://wiki.inomial.net/home/devstack_host_ports)
@@ -70,17 +71,17 @@ Functionality is added to the template by updating the Main method. You can
 add servlets, message consumers and more. See the
 [cheat sheet](https://github.com/inomial/secore) for more information.
 
-### Packaging and Namespaces
+### Packaging and Namespaces (Inomial)
 
 Microservices developed for use by all customers should be packaged into the
 `com.inomial` package. For example, the rate card engine is in `com.inomial.rating.jackpot`.
 
-Microservices developed specifically for customers should be packaged into
+Microservices developed specifically for a customer should be packaged into
 the `net.inomial` package, using the same name used for their web service.
 For example, `net.inomial.example`. In general, you shouldn't shorten
 the customer name.
 
-### Repository naming
+### Repository naming (Inomial)
 
 Be consistent! Microservices developed for customers should be put into a
 repository using the package name, e.g. `inomial/net.inomial.example`, and
@@ -89,7 +90,7 @@ docker container names, etc)
 
 Internal application repositories can be named consistent with the service name.
 
-### Starting applications
+### Starting applications (Inomial)
 
 Use the `./run` script as a one-stop-shop command to compile your project,
 build a docker image and container, and run the microservice.
@@ -130,7 +131,7 @@ upon startup for this invocation of the microservice *only*. This can be useful
 if you want to enable verbose or diganostic logging on a library your
 microservice uses.
 
-#### Launching the project from out-of-directory
+#### Launching the project from out-of-directory (Inomial)
 
 The `run` script will happily work from any current directory; it'll simply figure out
 the relative paths to its requisite inputs and launch the commands with the correct
