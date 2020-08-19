@@ -58,7 +58,7 @@ repositories {
   mavenCentral()
 }
 
-task growJar(type: Jar) {
+task growJar(type: Jar, dependsOn: configurations.runtimeClasspath) {
   classifier = "grow"
 
   from(configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }
