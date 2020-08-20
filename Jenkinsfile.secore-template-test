@@ -1,0 +1,145 @@
+// This is for secore-template's repo and should be removed when creating a new repository from secore-template
+
+pipeline {
+    agent any
+
+    environment {
+        // request specific Java version
+        JAVA_HOME = "${tool 'jdk11'}"
+        PATH      = "${env.JAVA_HOME}/bin:${env.PATH}"
+    }
+
+    triggers {
+//        pollSCM('H/10 * * * *')
+//        cron(BRANCH_NAME == "master" ? "H 14 * * 2" : "")
+        upstream(upstreamProjects: "DockerBuild_secore-base/master", threshold: hudson.model.Result.SUCCESS)
+    }
+
+    stages {
+        stage('Prepare') {
+            steps {
+                script {
+                    versionNumber = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yy.MM"}.${BUILDS_THIS_MONTH}', versionPrefix: '', worstResultForIncrement: 'SUCCESS'
+                    versionNumberInt = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyMM"}${BUILDS_THIS_MONTH, XXX}', versionPrefix: '', worstResultForIncrement: 'SUCCESS'
+                    if (env.BRANCH_NAME == 'master') {
+                        currentBuild.displayName = versionNumber
+                    }
+                    timestamp = VersionNumber versionNumberString: '${BUILD_DATE_FORMATTED, "yyyy-MM-dd HH:mm:ss Z"}'
+                    gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
+                    gradleVersion = sh(script: "awk -F= '\$1==\"distributionUrl\"{print\$2}' gradle/wrapper/gradle-wrapper.properties|sed -n 's/.*\\/gradle-\\(.*\\)-bin\\.zip\$/\\1/p'", returnStdout: true).trim()
+                    gradle = "/usr/lib/gradle/${gradleVersion}/bin/gradle"
+                }
+                echo "Building from commit ${gitCommit} in ${BRANCH_NAME} branch at ${timestamp}"
+                echo "VersionNumber: ${versionNumber} / ${versionNumberInt}"
+                echo "GradleVersion: ${gradleVersion}"
+                sh "if [ ! -x \"$gradle\" ]; then echo \"Gradle version not available, try: \$(ls -1 /usr/lib/gradle/|tr '\n' ' ')\"; exit 1; fi"
+                sh 'java -version'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
+                sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
+                sh "${gradle} clean build -Pdescription=test"
+            }
+        }
+        stage('Build with Grow') {
+            steps {
+                sh "sed -i \"s|^//\\( *dependsOn 'growJar'\\)|\\1|\" build.gradle"
+                sh "sed -i \"s|//\\( *compile 'com.inomial:sql-core:.*\\)|\\1|\" build.gradle"
+                sh "mkdir -pv src/main/grow"
+                sh "echo test > src/main/grow/schema.grow"
+                sh "echo PACKAGE=com.inomial.secore.template > src/main/grow/package.grow"
+
+                sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
+                sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
+                sh "${gradle} clean build -Pdescription=test"
+            }
+        }
+        stage('Test') {
+            steps {
+                sh "./test.sh"
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/test-results/**', excludes: '**/test-results/**/binary/**'
+//                    junit '**/build/test-results/**/*.xml'
+                }
+            }
+        }
+        stage('Tag') {
+            when {
+                branch 'master'
+            }
+            steps {
+                // add tag
+                sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${BRANCH_NAME} commit ${gitCommit} on ${timestamp}\""
+
+                // push tag
+                sh "git push origin \"${versionNumber}\""
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (env.BRANCH_NAME == 'master') {
+                    notifyBuild()
+                }
+            }
+
+//            archiveArtifacts artifacts: '**/build/libs/**/*.jar', fingerprint: true
+//            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true, allowEmptyArchive: true
+//            archiveArtifacts artifacts: '**/build/reports'
+        }
+
+        cleanup {
+            // cleanup workspace
+            cleanWs disableDeferredWipeout: true
+        }
+    }
+
+    options {
+//        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr:'20'))
+        timeout(time: 60, unit: 'MINUTES')
+        skipStagesAfterUnstable()
+        timestamps()
+        ansiColor('xterm')
+    }
+}
+
+def notifyBuild() {
+    // build status of null means successful
+    buildStatus = currentBuild.result ?: 'SUCCESS'
+
+    // Override default values based on build status
+    if (buildStatus == 'STARTED' || buildStatus == 'UNSTABLE') {
+        colorCode = '#d69d46'
+    } else if (buildStatus == 'SUCCESS') {
+        colorCode = '#43b688'
+    } else {
+        colorCode = '#9e040e'
+    }
+
+    // send notification if this build was not successful or if the previous build wasn't successful
+    if ( (currentBuild.previousBuild != null && currentBuild.previousBuild.result != 'SUCCESS') || buildStatus != 'SUCCESS') {
+        slackSend (
+            color: colorCode,
+            message: "${buildStatus}: ${env.JOB_NAME} [<${env.RUN_DISPLAY_URL}|${env.BUILD_DISPLAY_NAME}>]"
+        )
+
+        emailext (
+            subject: '$DEFAULT_SUBJECT',
+            body: '$DEFAULT_CONTENT',
+            recipientProviders: [
+                [$class: 'CulpritsRecipientProvider'],
+                [$class: 'DevelopersRecipientProvider'],
+                [$class: 'RequesterRecipientProvider']
+            ],
+            replyTo: '$DEFAULT_REPLYTO',
+            to: '$DEFAULT_RECIPIENTS, cc:builds@inomial.com'
+        )
+    }
+}
