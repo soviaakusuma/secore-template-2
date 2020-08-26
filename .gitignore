@@ -36,3 +36,6 @@ docker/GROW
 
 # Vim temporary files
 **/*.swp
+
+# Maven
+target

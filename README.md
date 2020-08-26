@@ -14,18 +14,33 @@ the various secore modules can be found via the links in the cheat sheet.
 This template contains a complete (but useless) secore application.
 
 To use this template for your own project, follow these very simple steps:
+- Clone `secore-template` from github (delete Jenkinsfile.secore-template-test). You can use `-o template` in the clone command to use `template` as the remote
+  name instead of `origin`. This will allow you to keep the template repo as a secondary upstream to pull future updates.
+- Make sure you also copy .gitignore and .env from secore-template.
 
-- copy `secore-template` from github (delete Jenkinsfile.secore-template-test)
-- Make sure you also copy .gitignore and .env from secore-template
-- Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common
-- change `settings.gradle` to set the project name
-- change `build.gradle` to set the project description
-- replace `secore-template` in `docker-compose.yml`
-- replace 'secore-template` in `docker-compose-test.yml`
-- run "./gradlew clean" to get rid of any secore artefacts (also check in docker/)
-- build and run the microservice: `./run`
-- uncomment the lines in build.gradle if you want to use grow.
-- update `README.md` to remove these instructions :)
+#### Inomial Specific
+- Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common.
+- Change `settings.gradle` to set the project name.
+- Change `build.gradle` to set the project description.
+- Replace `secore-template` in `docker-compose.yml`.
+- Replace 'secore-template` in `docker-compose-test.yml`.
+- Run "./gradlew clean" to get rid of any secore artefacts (also check in docker/).
+- Build and run the microservice: `./run`.
+- Uncomment the lines in build.gradle if you want to use grow.
+- Delete Telflow files: `rm pom.xml docker/Dockerfile.telflow`.
+- Update `README.md` to remove these instructions :)
+
+#### Telflow Specific
+- Move main class to package for project `com.telflow.<project>` eg `com.telflow.analytics`  for analytics.
+- Update `pom.xml`:
+  - Update the parent pom version to the latest tagged version of assembly-parent-container.
+  - Set `«define name»` and `«define description»` to the project name & description.
+  - Change `component-name` to the component name. This is the name used for the main directory in `/opt/telflow`.
+  - Update `mainClass` to the new main class.
+- Build with `mvn clean install`.
+- Run with `mvn exec:java`.
+- Delete Inomial files: `rm -r *gradle* *Jenkins* docker/Dockerfile run push docker-compose-test.yml mkdocker test*.sh postgres-init.sh build.version`.
+- Update `README.md` to remove these instructions :)
 
 There is plenty of room to improve the template (and this documentation);
 please take a moment to make things better than you found them.
@@ -126,3 +141,5 @@ out from GitHub with just two shell commands:
   git clone https://github.com/inomial/secore-template.git /path/to/working/copy/secore-template
   /path/to/working/copy/secore-template/run
   ```
+
+
