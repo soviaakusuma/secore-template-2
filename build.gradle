@@ -12,6 +12,7 @@ buildscript {
 
 plugins {
   id 'com.inomial.grow-plugin' version '1.2.2'
+  id "com.github.ben-manes.versions" version "0.33.0"
 }
 
 apply plugin: "application"
@@ -38,6 +39,8 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
+  // use `./gradlew dependencyUpdates` to check for updates to these dependencies
+
   compile 'com.inomial:secore:2.0.0';
   
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
