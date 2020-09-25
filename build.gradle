@@ -4,7 +4,9 @@
 
 buildscript {
   repositories {
-    mavenLocal()
+    if(version == "DEV") {
+      mavenLocal()
+    }
     jcenter()
     mavenCentral()
   }
@@ -54,7 +56,9 @@ dependencies {
 
 repositories {
 // we should avoid mavenLocal(), see https://docs.gradle.org/current/userguide/declaring_repositories.html#sec:case-for-maven-local
-//  mavenLocal()
+  if(version == "DEV") {
+    mavenLocal()
+  }
   maven {
     url "https://maven.inomial.com/"
   }
