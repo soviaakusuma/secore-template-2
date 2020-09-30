@@ -6,7 +6,7 @@ networks:
 
 services:
   secore-template:
-    image: inomial.io/secore-template
+    image: inomial.io/secore-template:${VERSION:-latest}
     environment:
       # Enable the JVM debugger on internal port 9009/tcp (devstack only).
       JAVA_OPTS: "${JAVA_OPTS:--agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:9009}"

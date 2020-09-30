@@ -55,7 +55,21 @@ timeout() {
 timeout 60 docker-compose $docker_compose_opts exec -Tu postgres postgres sh -c "until psql -h 127.0.0.1 -U \"\$POSTGRES_USER\" \"\$POSTGRES_DB\" -ec '\q'; do echo 'Postgres is unavailable - sleeping'; sleep 1; done" </dev/null
 
 # start container with GROW=init and wait for it to exit (start attached with timeout)
-GROW=init timeout 60 docker-compose $docker_compose_opts --no-ansi up --exit-code-from $app $app
+if [ "$1" = upgrade ] && [ ! "$INITVERSION" ]; then
+  INITVERSION=$(git tag -n | grep -E '^[2-9][0-9]\.(0[1-9]|1[0-2])\.[1-9]([0-9]+)?\s+Jenkins build from master commit ' | sort -V | tail -n1 | awk '{print$1}')
+fi
+if [ "$INITVERSION" ]; then
+  echo "Running Grow init with $INITVERSION"
+fi
+VERSION=${INITVERSION:-latest} GROW=init timeout 60 docker-compose $docker_compose_opts --no-ansi up --exit-code-from $app $app
+if [ "$INITVERSION" ]; then
+  expectedVer=$(awk -F. '{printf "%.2d%.2d%.3d\n", $1, $2, $3}' <<<"$INITVERSION")
+  dbVer=$(docker-compose $docker_compose_opts run -T --rm testsql psql "$(. .env && echo $APP_POSTGRES_DATABASE)" -qAtc 'select version from grow.log')
+  if [ "$expectedVer" != "$dbVer" ]; then
+    echo "Expected Grow version $expectedVer from $INITVERSION but got $dbVer"
+    exit 1
+  fi
+fi
 
 # run sql tests
 TIMEOUT=300

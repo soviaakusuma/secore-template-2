@@ -29,8 +29,16 @@ pipeline {
                     gitCommit = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
                     gradleVersion = sh(script: "awk -F= '\$1==\"distributionUrl\"{print\$2}' gradle/wrapper/gradle-wrapper.properties|sed -n 's/.*\\/gradle-\\(.*\\)-bin\\.zip\$/\\1/p'", returnStdout: true).trim()
                     gradle = "/usr/lib/gradle/${gradleVersion}/bin/gradle"
+
+                    lastStableBuildVer = sh(script: "git tag -n | grep -E '^[2-9][0-9]\\.(0[1-9]|1[0-2])\\.[1-9]([0-9]+)?\\s+Jenkins build from master commit ' | sort -V | tail -n1 | awk '{print\$1}'", returnStdout: true).trim()
+                    if (lastStableBuildVer.isEmpty() && env.BRANCH_NAME == 'master') {
+                        timeout(time: 600, unit: 'SECONDS') {
+                            input message:"Unable to determine version of last stable build, if this is not a new project then something is broken.", ok: "Continue anyway (Grow upgrade test will be skipped)."
+                        }
+                    }
                 }
                 echo "Building from commit ${gitCommit} in ${BRANCH_NAME} branch at ${timestamp}"
+                echo "Last stable master build: ${lastStableBuildVer}"
                 echo "VersionNumber: ${versionNumber} / ${versionNumberInt}"
                 echo "GradleVersion: ${gradleVersion}"
                 sh "if [ ! -x \"$gradle\" ]; then echo \"Gradle version not available, try: \$(ls -1 /usr/lib/gradle/|tr '\n' ' ')\"; exit 1; fi"
@@ -47,6 +55,22 @@ pipeline {
         stage('Test') {
             steps {
                 sh "./test.sh"
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: '**/test-results/**', excludes: '**/test-results/**/binary/**'
+//                    junit '**/build/test-results/**/*.xml'
+                }
+            }
+        }
+        stage('Test upgrade') {
+            when {
+                expression {
+                    lastStableBuildVer.isEmpty() == false
+                }
+            }
+            steps {
+                sh "INITVERSION=${lastStableBuildVer} ./test.sh"
             }
             post {
                 always {
