@@ -19,7 +19,10 @@ public class Main {
             // You can also add your own metrics, see the secore README for links.
             MonitoringServer.Start();
 
-            // → → → → → Start your application here. ← ← ← ← ←
+            // → → → → → If your application does not use  ← ← ← ← ←
+            // → → → → → consul, delete the following line ← ← ← ← ←
+            // → → → → → and start your application here.  ← ← ← ← ←
+            new ConsulApplication().start(argv);
 
             LoggerFactory.getLogger(Main.class).info("Started.");
         } catch (Exception ex) {
