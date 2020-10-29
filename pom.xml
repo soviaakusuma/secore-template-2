@@ -28,7 +28,8 @@
     <changelist>-SNAPSHOT</changelist>
 
     <!-- Set this to the name of the application -->
-    <component.name>set__component.name__in_pom_xml</component.name>
+    <!-- Also adjust ConsulApplication to suit -->
+    <component.name>set__component_name__in_pom_xml</component.name>
 
     <defaultJavaOpts>-Xms256m -Xmx256m</defaultJavaOpts>
     <mainClass>com.inomial.secore.template.Main</mainClass>
@@ -36,9 +37,16 @@
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
 
-    <secore.version>3.0.2</secore.version>
+    <secore.version>3.0.4</secore.version>
     <log4j.version>2.13.3</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
+
+      <!-- force consistent version of jackson libraries -->
+      <!-- Telflow declares 2.8.x, Secore 2.9.x. -->
+      <!-- Use The Latest -->
+      <!-- https://github.com/FasterXML/jackson-modules-java8/issues/81 -->
+    <jackson.version>2.11.3</jackson.version>
+    <jackson2-databind-version>2.11.3</jackson2-databind-version>
 
     <maven.buildnumber.version>1.4</maven.buildnumber.version>
     <maven.build.helper.version>3.0.0</maven.build.helper.version>
@@ -61,12 +69,27 @@
   </dependencyManagement>
 
   <dependencies>
-      <dependency>
-      <groupId>com.telflow.logging</groupId>
-      <artifactId>telflow-logging</artifactId>
-      <version>${telflow.assembly.version}</version>
-      <scope>runtime</scope>
-     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson2-databind-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.telflow.factory</groupId>
+      <artifactId>configuration-management</artifactId>
+      <version>1.0.0</version>
+    </dependency>
 
     <!-- Use this API to log -->
     <dependency>
@@ -74,7 +97,15 @@
       <artifactId>slf4j-api</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
-    <!-- As of secore 2.4.25, MonitoringServer uses jul, redirect to slf4j -->
+
+    <!-- logging implementations: -->
+    <dependency>
+      <groupId>com.telflow.logging</groupId>
+      <artifactId>telflow-logging</artifactId>
+      <version>${telflow.assembly.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <!-- some libraries use jul, redirect to slf4j -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jul-to-slf4j</artifactId>
