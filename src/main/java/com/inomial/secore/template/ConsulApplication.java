@@ -1,9 +1,14 @@
 
 package com.inomial.secore.template;
 
+import com.inomial.secore.mon.MonitoringServer;
+import com.telflow.assembly.healthcheck.Healthcheck;
+import com.telflow.assembly.healthcheck.kafka.KafkaHealthcheck;
+import com.telflow.assembly.healthcheck.postgres.PostgresHealthcheck;
 import com.telflow.factory.configuration.management.ConsulManager;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -21,16 +26,17 @@ public class ConsulApplication {
      * Use a name as per <a href=https://dgit.atlassian.net/wiki/spaces/DPE/pages/988123028/Consul+KV+Hierarchy">Consul
      * doco</a>
      */
-    private static final String CONSUL_APP_NAME = "consul-main";
+    static final String CONSUL_APP_NAME = "consul-main";
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulApplication.class);
 
-    public void start(String[] argv) throws Exception {
+    public void start() throws Exception {
         startConsul();
     }
 
     private void consulChanged() {
         LOG.info("Configuration: {}", ConsulManager.getConfiguration());
+        startHealthcheckServer();
 
         //
         // → → → → → (Re)start your application here. ← ← ← ← ←
@@ -39,8 +45,25 @@ public class ConsulApplication {
         LOG.info("Configuration applied.");
     }
 
+    private void startHealthcheckServer() {
+        Map<String, Healthcheck> checks = new HashMap<>();
+        checks.put("kafka", new KafkaHealthcheck(Consul.ENV_KAFKA.value(), 10000L));
+        String url = String.format("jdbc:postgresql://%s:%s/%s",
+            Consul.ENV_POSTGRES_HOST.value(),
+            Consul.ENV_POSTGRES_PORT.value(),
+            Consul.APP_POSTGRES_DB.value());
+        checks.put("postgresql", new PostgresHealthcheck(
+            url,
+            Consul.ENV_POSTGRES_USER.value(),
+            Consul.ENV_POSTGRES_PASS.value()));
+
+        Long wait = Long.valueOf(Consul.HEALTHCHECK_WAIT.value());
+        Integer port = Integer.valueOf(Consul.HEALTHCHECK_PORT.value());
+        Main.health.startServer(checks, wait, port);
+    }
+
     /**
-     * @throws MalformedURLException if the consul server environment variable cannot be parsed
+     * @throws MalformedURLException if the consul server environment variables cannot be parsed
      */
     private void startConsul() throws MalformedURLException {
         String consulEndpoint = System.getenv("CONSUL_SERVER");
@@ -55,7 +78,7 @@ public class ConsulApplication {
         // defaults requires the app name
         //
         ConsulManager.setAppName(CONSUL_APP_NAME);
-        ConsulManager.init(url, CONSUL_APP_NAME, ConsulKey.defaults());
+        ConsulManager.init(url, CONSUL_APP_NAME, Consul.defaults());
         // If we register the method before init, it's called twice with partial config the first time.
         // If we register the method after init, it's called only after consul config next changes.
         // So register after and call explicitly.
@@ -83,7 +106,7 @@ public class ConsulApplication {
         }
     }
 
-    public enum ConsulKey {
+    public enum Consul {
 
         //
         // → → → → → Replace these enum values with your application config. ← ← ← ← ←
@@ -91,7 +114,18 @@ public class ConsulApplication {
         APP_CFG_A("/appConfig1", "defaultValue1", KeyType.App),
         APP_CFG_B("/appConfig2", "defaultValue2", KeyType.App),
 
-        ENV_CFG_A("/envConfig1", "defaultValue3", KeyType.Env);
+        APP_POSTGRES_DB("/postgres/database", "tf_system_message", KeyType.App),
+
+        HEALTHCHECK_PORT("/healthcheck/port", Integer.toString(MonitoringServer.DEFAULT_PORT), KeyType.App),
+        HEALTHCHECK_WAIT("/healthcheck/perCheckMaxWait", "150", KeyType.App),
+
+        // Adjust to suit:
+        ENV_POSTGRES_USER("/postgres/postgresSystemMessageUser", "tf_system_message", KeyType.Env),
+        ENV_POSTGRES_PASS("/postgres/secure/postgresSystemMessagePassword", "", KeyType.Env),
+
+        ENV_POSTGRES_HOST("/postgres/postgresEndpoint", "postgresql", KeyType.Env),
+        ENV_POSTGRES_PORT("/postgres/postgresPort", "5432", KeyType.Env),
+        ENV_KAFKA("/kafka/kafkaEndpoint", "kafka:9092", KeyType.Env);
 
         public final String key;
 
@@ -103,14 +137,14 @@ public class ConsulApplication {
          */
         private final KeyType kt;
 
-        ConsulKey(String key, String dflt, KeyType map) {
+        Consul(String key, String dflt, KeyType map) {
             this.key = key;
             this.dflt = dflt;
             this.kt = map;
         }
 
         public static Map<String, String> defaults() {
-            return Stream.of(ConsulKey.values()).collect(Collectors.toMap(ConsulKey::key, x -> x.dflt));
+            return Stream.of(Consul.values()).collect(Collectors.toMap(Consul::key, x -> x.dflt));
         }
 
         public String value() {
