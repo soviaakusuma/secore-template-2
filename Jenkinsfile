@@ -52,6 +52,35 @@ pipeline {
                 sh "${gradle} clean build"
             }
         }
+        stage('Scan') {
+            environment {
+                IMAGE = """${ sh(script: '. build/version.properties && echo inomial.io/$project', returnStdout: true).trim() }"""
+                TRIVY_CACHE_SOURCE = "${env.HOME}/trivy/"
+                TRIVY_CACHE_MOUNT = "/tmp/trivy/"
+            }
+            steps {
+                sh '''
+                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
+                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
+                        --clear-cache
+                '''
+                sh '''
+                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
+                        --exit-code 0 --severity UNKNOWN,LOW,MEDIUM,HIGH \
+                        --no-progress "$IMAGE"
+                '''
+                sh '''
+                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
+                        --exit-code 1 --severity CRITICAL \
+                        --ignore-unfixed \
+                        --no-progress "$IMAGE"
+                '''
+            }
+        }
         stage('Test') {
             steps {
                 sh "./test.sh"
@@ -83,11 +112,15 @@ pipeline {
             when {
                 branch 'master'
             }
+            environment {
+                GIT_AUTH = credentials('github_inomial-ci')
+            }
             steps {
                 // add tag
                 sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${BRANCH_NAME} commit ${gitCommit} on ${timestamp}\""
 
                 // push tag
+                sh 'git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"'
                 sh "git push origin \"${versionNumber}\""
             }
         }
@@ -124,7 +157,7 @@ pipeline {
                 }
             }
 
-            archiveArtifacts artifacts: '**/build/libs/**/*.jar', fingerprint: true
+//            archiveArtifacts artifacts: '**/build/libs/**/*.jar', fingerprint: true
 //            archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true, allowEmptyArchive: true
 //            archiveArtifacts artifacts: '**/build/reports'
         }
