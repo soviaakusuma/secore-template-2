@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>10.10.6</version>
+    <version>10.10.10</version>
   </parent>
 
   <groupId>com.telflow</groupId>
@@ -37,7 +37,10 @@
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
 
-    <secore.version>3.0.4</secore.version>
+    <!-- Use -Dexec.args=wait to pause the application on exec:java command -->
+    <exec.args></exec.args>
+
+    <secore.version>3.0.6</secore.version>
     <log4j.version>2.13.3</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
 
@@ -48,9 +51,9 @@
     <jackson.version>2.11.3</jackson.version>
     <jackson2-databind-version>2.11.3</jackson2-databind-version>
 
-    <maven.buildnumber.version>1.4</maven.buildnumber.version>
-    <maven.build.helper.version>3.0.0</maven.build.helper.version>
-    <maven.compiler.version>3.8.1</maven.compiler.version>
+    <jetty.version>9.4.29.v20200521</jetty.version>
+
+    <maven.build.helper.version>3.2.0</maven.build.helper.version>
     <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
     <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
     <compiler.jdk.version>1.8</compiler.jdk.version>
@@ -83,6 +86,23 @@
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.telflow.assembly</groupId>
+      <artifactId>healthcheck</artifactId>
+      <version>${telflow.assembly.version}</version>
     </dependency>
 
     <dependency>
@@ -161,7 +181,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven.compiler.version}</version>
         <configuration>
           <source>${compiler.jdk.version}</source>
           <target>${compiler.jdk.version}</target>
@@ -264,6 +283,7 @@
         <version>${exec-maven-plugin.version}</version>
         <configuration>
           <mainClass>${mainClass}</mainClass>
+          <arguments><argument>${exec.args}</argument></arguments>
         </configuration>
       </plugin>
       <plugin>
