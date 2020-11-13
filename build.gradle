@@ -14,7 +14,7 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'com.inomial.grow-plugin' version '1.2.2'
+  id 'com.inomial.grow-plugin' version '1.2.3'
   id "com.github.ben-manes.versions" version "0.33.0"
   id 'io.spring.dependency-management' version '1.0.1.RELEASE'
 }
@@ -24,7 +24,7 @@ apply plugin: "com.inomial.grow-plugin"
 
 // description = "change me to a brief description of what this application does. this is viewable in `gradle -q projects` and is also set in the container image labels."
 
-if (description == null) {
+if (description == null && project.name != 'secore-template') {
   throw new GradleException('description not set in build.gradle')
 }
 
@@ -67,10 +67,10 @@ dependencies {
   implementation 'com.inomial:secore:3.0.6'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
-  // compile 'com.inomial:sql-core:1.1.+';
+  // runtimeOnly 'com.inomial:sql-core:1.1.+';
 
   // Include this if you're working with messages
-  // compile 'com.inomial:cim:1.0.+'
+  // runtimeOnly 'com.inomial:cim:1.0.+'
 
   // Delete this if you do not need Consul support:
   implementation 'com.telflow.factory:configuration-management:1.0.0'
