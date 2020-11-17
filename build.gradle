@@ -70,7 +70,7 @@ dependencies {
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
 
   // Include this if you're working with messages
-  // runtimeOnly 'com.inomial:cim:1.0.+'
+  // compile 'com.inomial:cim:1.0.+'
 
   // Delete this if you do not need Consul support:
   implementation 'com.telflow.factory:configuration-management:1.0.0'
