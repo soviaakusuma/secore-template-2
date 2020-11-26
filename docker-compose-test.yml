@@ -30,6 +30,7 @@ services:
       PGUSER_SUPER: ${POSTGRES_USER}
       PGPASSWORD_SUPER: ${POSTGRES_PASSWORD}
       TEST_DB: ${APP_POSTGRES_DATABASE}
+      GROW_TX_BREAKOUT_RESPONSE: exception
     networks:
     - infrastructure
     working_dir: /app
