@@ -71,11 +71,15 @@ pipeline {
             when {
                 branch 'master'
             }
+            environment {
+                GIT_AUTH = credentials('github_inomial-ci')
+            }
             steps {
                 // add tag
                 sh "git tag -a \"${versionNumber}\" -m \"Jenkins build from ${BRANCH_NAME} commit ${gitCommit} on ${timestamp}\""
 
                 // push tag
+                sh 'git config --local credential.helper "!f() { echo username=\\$GIT_AUTH_USR; echo password=\\$GIT_AUTH_PSW; }; f"'
                 sh "git push origin \"${versionNumber}\""
             }
         }
