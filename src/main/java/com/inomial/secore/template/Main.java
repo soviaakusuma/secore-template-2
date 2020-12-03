@@ -4,9 +4,6 @@ package com.inomial.secore.template;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import com.inomial.secore.health.HealthcheckServer;
-import com.inomial.secore.kafka.KafkaProperties;
-
 public class Main {
 
     static HealthcheckServer health;
