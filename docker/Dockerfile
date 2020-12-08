@@ -47,3 +47,5 @@ LABEL org.opencontainers.image.created=$BUILD_DATE \
       org.opencontainers.image.revision=$VCS_REF \
       org.opencontainers.image.vendor="DGIT Systems" \
       org.opencontainers.image.version=$BUILD_VERSION
+
+HEALTHCHECK --interval=5s --timeout=3s --start-period=10s --retries=3 CMD curl -sSf http://localhost:7070/health/ || exit 1

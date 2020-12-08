@@ -43,11 +43,11 @@ public class HealthcheckServer {
         }
     }
 
-    public synchronized void startServer(Map<String, Healthcheck> checks, long perCheckWait, int port) {
+    public synchronized void startServer(String appName, Map<String, Healthcheck> checks, long perCheckWait, int port) {
         if (service != null) {
             stopServer();
         }
-        service = new HealthcheckService(ConsulApplication.CONSUL_APP_NAME, perCheckWait);
+        service = new HealthcheckService(appName, perCheckWait);
         service.setHealthchecks(checks);
         service.setDoChecks(checks.keySet().stream().collect(Collectors.joining(",")));
 

@@ -38,25 +38,28 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
-                sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
-                sh "${gradle} clean build -Pdescription=test"
-            }
-        }
-        stage('Build with Grow') {
-            steps {
-                sh "sed -i \"s|^//\\( *dependsOn 'growJar'\\)|\\1|\" build.gradle"
-                sh "sed -i \"s|//\\( *runtimeOnly 'com.inomial:sql-core:.*\\)|\\1|\" build.gradle"
-                sh "mkdir -pv src/main/grow"
-                sh "echo test > src/main/grow/schema.grow"
-                sh "echo PACKAGE=com.inomial.secore.template > src/main/grow/package.grow"
+                sh "secore-template-test/enable-healthchecks.sh"
 
                 sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
                 sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
                 sh "${gradle} clean build -Pdescription=test"
             }
         }
-        stage('Test') {
+        stage('Test healthcheck') {
+            steps {
+                sh "secore-template-test/test-healthcheck.sh"
+            }
+        }
+        stage('Build with Grow') {
+            steps {
+                sh "secore-template-test/enable-grow-build.sh"
+
+                sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
+                sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
+                sh "${gradle} clean build -Pdescription=test"
+            }
+        }
+        stage('Test Grow') {
             steps {
                 sh "./test.sh"
             }
@@ -99,6 +102,8 @@ pipeline {
         }
 
         cleanup {
+            sh "docker-compose down --timeout 0 --volumes --remove-orphans"
+
             // cleanup workspace
             cleanWs disableDeferredWipeout: true
         }

@@ -1,0 +1,27 @@
+version: "3"
+
+networks:
+  infrastructure:
+    external: false
+
+services:
+  zookeeper:
+    image: inomial.io/zookeeper
+    networks:
+    - infrastructure
+
+  kafka:
+    image: inomial.io/kafka
+    depends_on:
+    - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_BROKER_ID: 100
+    networks:
+    - infrastructure
+
+  secore-template:
+    command: wait
+    environment:
+      START_DELAY: ${START_DELAY:-0}

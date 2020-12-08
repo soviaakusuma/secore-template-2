@@ -14,10 +14,11 @@ the various secore modules can be found via the links in the cheat sheet.
 This template contains a complete (but useless) secore application.
 
 To use this template for your own project, follow these very simple steps:
-- Clone `secore-template` from github (delete Jenkinsfile.secore-template-test).
+- Clone `secore-template` from github (exclude secore-template-test dir).
   You can use `-o template` in the clone command to use `template` as the remote
   name instead of `origin`. This will allow you to keep the template repo as a secondary upstream to pull future updates.
 - Make sure you also copy .gitignore and .env from secore-template.
+- Delete secore-template-test dir
 
 #### Inomial Specific
 - Move main class to package for project `com.inomial.<project>` eg `com.inomial.rating.common` for rating-common.
@@ -28,7 +29,7 @@ To use this template for your own project, follow these very simple steps:
 - Run "./gradlew clean" to get rid of any secore artefacts (also check in docker/).
 - Build and run the microservice: `./run`.
 - Uncomment the lines in build.gradle if you want to use grow.
-- Delete Telflow files: `rm pom.xml docker/Dockerfile.telflow`.
+- Delete Telflow files: `rm pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java`.
 - Update `README.md` to remove these instructions :)
 
 #### Telflow Specific

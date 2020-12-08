@@ -36,6 +36,7 @@ public class ConsulApplication {
 
     private void consulChanged() {
         LOG.info("Configuration: {}", ConsulManager.getConfiguration());
+        Main.initialisedHealthCheck.starting();
         startHealthcheckServer();
 
         //
@@ -43,6 +44,7 @@ public class ConsulApplication {
         //
 
         LOG.info("Configuration applied.");
+        Main.initialisedHealthCheck.initialised();
     }
 
     private void startHealthcheckServer() {
@@ -56,10 +58,11 @@ public class ConsulApplication {
             url,
             Consul.ENV_POSTGRES_USER.value(),
             Consul.ENV_POSTGRES_PASS.value()));
+        checks.put("initialised", Main.initialisedHealthCheck); // this is marked as done in Main
 
         Long wait = Long.valueOf(Consul.HEALTHCHECK_WAIT.value());
         Integer port = Integer.valueOf(Consul.HEALTHCHECK_PORT.value());
-        Main.health.startServer(checks, wait, port);
+        Main.health.startServer(CONSUL_APP_NAME, checks, wait, port);
     }
 
     /**
