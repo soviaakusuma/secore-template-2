@@ -1,18 +1,30 @@
 
 package com.inomial.secore.template;
 
+import com.inomial.secore.kafka.KafkaHeaderMapper;
+import com.inomial.secore.kafka.KafkaMessage;
+import com.inomial.secore.kafka.MessageConsumer;
+import com.inomial.secore.kafka.MessageHandler;
+import com.inomial.secore.kafka.MessageProducer;
 import com.inomial.secore.mon.MonitoringServer;
+import com.inomial.secore.scope.Scope;
 import com.telflow.assembly.healthcheck.Healthcheck;
 import com.telflow.assembly.healthcheck.kafka.KafkaHealthcheck;
 import com.telflow.assembly.healthcheck.postgres.PostgresHealthcheck;
 import com.telflow.factory.configuration.management.ConsulManager;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +42,10 @@ public class ConsulApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulApplication.class);
 
+    private MessageProducer mp;
+
+    private MessageConsumer mc;
+
     public void start() throws Exception {
         startConsul();
     }
@@ -38,6 +54,7 @@ public class ConsulApplication {
         LOG.info("Configuration: {}", ConsulManager.getConfiguration());
         Main.initialisedHealthCheck.starting();
         startHealthcheckServer();
+        startKafka();
 
         //
         // → → → → → (Re)start your application here. ← ← ← ← ←
@@ -53,7 +70,7 @@ public class ConsulApplication {
         String url = String.format("jdbc:postgresql://%s:%s/%s",
             Consul.ENV_POSTGRES_HOST.value(),
             Consul.ENV_POSTGRES_PORT.value(),
-            Consul.APP_POSTGRES_DB.value());
+            Consul.POSTGRES_DB.value());
         checks.put("postgresql", new PostgresHealthcheck(
             url,
             Consul.ENV_POSTGRES_USER.value(),
@@ -63,6 +80,88 @@ public class ConsulApplication {
         Long wait = Long.valueOf(Consul.HEALTHCHECK_WAIT.value());
         Integer port = Integer.valueOf(Consul.HEALTHCHECK_PORT.value());
         Main.health.startServer(CONSUL_APP_NAME, checks, wait, port);
+    }
+
+    private void startKafka() {
+        if (this.mp != null) {
+            this.mp.close();
+        }
+        if (this.mc != null) {
+            this.mc.shutdown(true);
+        }
+
+        this.mp = new MessageProducer(createProducerConfig());
+        this.mc = new MessageConsumer(createConsumerConfig());
+        MessageHandler h = rec -> handle(rec.value());
+        this.mc.addMessageHandler(Consul.KAFKA_CONSUME_TOPIC.value(), h, Scope.NONE);
+        this.mc.start(Consul.KAFKA_CONSUME_GROUP.value());
+    }
+
+    private void handle(String value) {
+        LOG.info("Received message: {}", value);
+        //
+        // → → → → → Process your incoming message here. ← ← ← ← ←
+        //
+    }
+
+    protected void sendMessage(UUID correlationId, String message) {
+        this.mp.send(new KafkaMessage(Consul.KAFKA_PRODUCE_TOPIC.value(), null, message) {
+
+            @Override
+            public ProducerRecord<Object, String> produce() {
+                // KafkaMessage predefined headers are prepended with "inomial", so … do it here for now
+                ProducerRecord<Object, String> pr = super.produce();
+                KafkaHeaderMapper m = new KafkaHeaderMapper(pr.headers());
+
+                m.setUuidHeader("correlation", correlationId);
+                m.setUuidHeader("uuid", UUID.randomUUID());
+                m.setStringHeader("messageVersion", "0");
+
+                return pr;
+            }
+        });
+    }
+
+    /**
+     * @return configuration for the kafka consumer
+     */
+    protected Map<String, Object> createConsumerConfig() {
+        Map<String, Object> cp = new HashMap<>();
+        cp.put(ConsumerConfig.GROUP_ID_CONFIG, createConsumerId());
+        cp.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, Consul.ENV_KAFKA.value());
+        cp.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        return cp;
+    }
+
+    /**
+     * @return competing consumer ID (shares same ID as all other instances of this application)
+     */
+    private String createConsumerId() {
+        return CONSUL_APP_NAME;
+    }
+
+    /**
+     * @return configuration for the kafka producer
+     */
+    protected Map<String, Object> createProducerConfig() {
+        Map<String, Object> pp = new HashMap<>();
+        pp.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, Consul.ENV_KAFKA.value());
+        pp.put(ProducerConfig.CLIENT_ID_CONFIG, createProducerId());
+        pp.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        pp.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+        return pp;
+    }
+
+    /**
+     * @return unique identifier ID (assuming single instance per host)
+     */
+    private String createProducerId() {
+        try {
+            return CONSUL_APP_NAME + "_" + InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            LOG.warn("Unable to get hostname", e);
+            return CONSUL_APP_NAME;
+        }
     }
 
     /**
@@ -117,7 +216,11 @@ public class ConsulApplication {
         APP_CFG_A("/appConfig1", "defaultValue1", KeyType.App),
         APP_CFG_B("/appConfig2", "defaultValue2", KeyType.App),
 
-        APP_POSTGRES_DB("/postgres/database", "tf_system_message", KeyType.App),
+        POSTGRES_DB("/postgres/database", "tf_system_message", KeyType.App),
+
+        KAFKA_PRODUCE_TOPIC("/kafka/producer", String.format("solution.%s.outbox", CONSUL_APP_NAME), KeyType.App),
+        KAFKA_CONSUME_TOPIC("/kafka/consumer", String.format("solution.%s.inbox", CONSUL_APP_NAME), KeyType.App),
+        KAFKA_CONSUME_GROUP("/kafka/group", CONSUL_APP_NAME, KeyType.App),
 
         HEALTHCHECK_PORT("/healthcheck/port", Integer.toString(MonitoringServer.DEFAULT_PORT), KeyType.App),
         HEALTHCHECK_WAIT("/healthcheck/perCheckMaxWait", "150", KeyType.App),
