@@ -12,6 +12,14 @@ import com.telflow.assembly.healthcheck.Healthcheck;
 import com.telflow.assembly.healthcheck.kafka.KafkaHealthcheck;
 import com.telflow.assembly.healthcheck.postgres.PostgresHealthcheck;
 import com.telflow.factory.configuration.management.ConsulManager;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.flywaydb.core.Flyway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.sql.DataSource;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -22,11 +30,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Consume configuration and updates from Consul.
@@ -38,7 +41,7 @@ public class ConsulApplication {
      * Use a name as per <a href=https://dgit.atlassian.net/wiki/spaces/DPE/pages/988123028/Consul+KV+Hierarchy">Consul
      * doco</a>
      */
-    static final String CONSUL_APP_NAME = "consul-main";
+    static final String CONSUL_APP_NAME = "myapp";
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulApplication.class);
 
@@ -54,6 +57,7 @@ public class ConsulApplication {
         LOG.info("Configuration: {}", ConsulManager.getConfiguration());
         Main.initialisedHealthCheck.starting();
         startHealthcheckServer();
+        migrateDB();
         startKafka();
 
         //
@@ -70,11 +74,11 @@ public class ConsulApplication {
         String url = String.format("jdbc:postgresql://%s:%s/%s",
             Consul.ENV_POSTGRES_HOST.value(),
             Consul.ENV_POSTGRES_PORT.value(),
-            Consul.POSTGRES_DB.value());
+            Consul.APP_POSTGRES_DB.value());
         checks.put("postgresql", new PostgresHealthcheck(
             url,
-            Consul.ENV_POSTGRES_USER.value(),
-            Consul.ENV_POSTGRES_PASS.value()));
+            Consul.APP_POSTGRES_USER.value(),
+            Consul.APP_POSTGRES_PASS.value()));
         checks.put("initialised", Main.initialisedHealthCheck); // this is marked as done in Main
 
         Long wait = Long.valueOf(Consul.HEALTHCHECK_WAIT.value());
@@ -188,6 +192,26 @@ public class ConsulApplication {
         consulChanged();
     }
 
+    private void migrateDB() {
+        DataSource ds = null;
+
+        String url = String.format("jdbc:postgresql://%s:%s/%s",
+            Consul.ENV_POSTGRES_HOST.value(),
+            Consul.ENV_POSTGRES_PORT.value(),
+            Consul.APP_POSTGRES_DB.value());
+        String user = Consul.APP_POSTGRES_USER.value();
+        String pwd = Consul.APP_POSTGRES_PASS.value();
+
+        Flyway fw = Flyway.configure().
+            dataSource(url, user, pwd).
+            locations("classpath:schema").
+            load();
+
+        int result = fw.migrate();
+        LOG.info("Applied {} migrations.", result);
+    }
+
+
     /**
      * Telflow Consul configuration distinguishes between application and environment
      * namespaces. This is reflected in {@link ConsulManager} API. This enum maps an
@@ -216,8 +240,6 @@ public class ConsulApplication {
         APP_CFG_A("/appConfig1", "defaultValue1", KeyType.App),
         APP_CFG_B("/appConfig2", "defaultValue2", KeyType.App),
 
-        POSTGRES_DB("/postgres/database", "tf_system_message", KeyType.App),
-
         KAFKA_PRODUCE_TOPIC("/kafka/producer", String.format("solution.%s.outbox", CONSUL_APP_NAME), KeyType.App),
         KAFKA_CONSUME_TOPIC("/kafka/consumer", String.format("solution.%s.inbox", CONSUL_APP_NAME), KeyType.App),
         KAFKA_CONSUME_GROUP("/kafka/group", CONSUL_APP_NAME, KeyType.App),
@@ -226,8 +248,9 @@ public class ConsulApplication {
         HEALTHCHECK_WAIT("/healthcheck/perCheckMaxWait", "150", KeyType.App),
 
         // Adjust to suit:
-        ENV_POSTGRES_USER("/postgres/postgresSystemMessageUser", "tf_system_message", KeyType.Env),
-        ENV_POSTGRES_PASS("/postgres/secure/postgresSystemMessagePassword", "", KeyType.Env),
+        APP_POSTGRES_DB("/postgres/database", "tf_myapp", KeyType.App),
+        APP_POSTGRES_USER("/postgres/user", "postgres", KeyType.App),
+        APP_POSTGRES_PASS("/postgres/secure/password", "", KeyType.App),
 
         ENV_POSTGRES_HOST("/postgres/postgresEndpoint", "postgresql", KeyType.Env),
         ENV_POSTGRES_PORT("/postgres/postgresPort", "5432", KeyType.Env),

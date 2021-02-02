@@ -43,6 +43,7 @@
     <secore.version>3.0.6</secore.version>
     <log4j.version>2.13.3</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
+    <flyway.version>6.5.7</flyway.version>
 
       <!-- force consistent version of jackson libraries -->
       <!-- Telflow declares 2.8.x, Secore 2.9.x. -->
@@ -85,6 +86,34 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.jaxrs</groupId>
+      <artifactId>jackson-jaxrs-json-provider</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-xml</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-guava</artifactId>
+      <version>${jackson.version}</version>
+      <exclusions>
+        <!-- Jackson depends on minimum Guava version so exclude it to get
+        an up-to-date version -->
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
       <version>${jackson.version}</version>
     </dependency>
 
@@ -166,6 +195,12 @@
       <groupId>com.inomial</groupId>
       <artifactId>secore</artifactId>
       <version>${secore.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>${flyway.version}</version>
     </dependency>
 
     <dependency>

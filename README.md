@@ -29,7 +29,7 @@ To use this template for your own project, follow these very simple steps:
 - Run "./gradlew clean" to get rid of any secore artefacts (also check in docker/).
 - Build and run the microservice: `./run`.
 - Uncomment the lines in build.gradle if you want to use grow.
-- Delete Telflow files: `rm pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java`.
+- Delete Telflow files: `rm -r pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java src/main/resources/schema`.
 - Update `README.md` to remove these instructions :)
 
 #### Telflow Specific
