@@ -137,6 +137,7 @@ if [ "$sqltests" ]; then
   chmod +x "$grow_bin"
   DS_USERNAME=$PGUSER DS_PASSWORD=$PGPASSWORD "$grow_bin" --url "jdbc:postgresql://${PGHOST:-localhost}:${PGPORT:-5432}/$PGDATABASE" --grow auto
 
+  export grow_dir
   cd -
 
   echo "Running ${#sqltests[@]} tests..."

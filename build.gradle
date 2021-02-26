@@ -68,6 +68,8 @@ dependencies {
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
+  // Include this to pull in functions useful for SQL tests
+  // runtimeOnly 'com.inomial:sql-test:1.0';
 
   // Include this if you're working with messages
   // compile 'com.inomial:cim:1.0.+'
