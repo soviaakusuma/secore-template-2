@@ -13,6 +13,10 @@ pipeline {
         upstream(upstreamProjects: "DockerBuild_secore-base/master", threshold: hudson.model.Result.SUCCESS)
     }
 
+    parameters {
+        booleanParam(name: 'TEST_UPGRADE', defaultValue: true, description: 'Disable to skip Grow schema upgrade test')
+    }
+
     stages {
         stage('Prepare') {
             steps {
@@ -95,7 +99,7 @@ pipeline {
         stage('Test upgrade') {
             when {
                 expression {
-                    lastStableBuildVer.isEmpty() == false
+                    lastStableBuildVer.isEmpty() == false && params.TEST_UPGRADE
                 }
             }
             steps {
