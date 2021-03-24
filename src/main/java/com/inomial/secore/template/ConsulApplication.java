@@ -24,10 +24,14 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,7 +58,9 @@ public class ConsulApplication {
     }
 
     private void consulChanged() {
-        LOG.info("Configuration: {}", ConsulManager.getConfiguration());
+        LOG.info("Consul changed, updating configuration.");
+        logConsulKeys();
+
         Main.initialisedHealthCheck.starting();
         startHealthcheckServer();
         migrateDB();
@@ -66,6 +72,17 @@ public class ConsulApplication {
 
         LOG.info("Configuration applied.");
         Main.initialisedHealthCheck.initialised();
+    }
+
+    private void logConsulKeys() {
+        Predicate<String> isSecretKey = k ->
+            k == null || k.toLowerCase().contains("secure") || k.toLowerCase().contains("pass");
+
+        String keys = Arrays.stream(Consul.values())
+            .map(entry -> entry.key() + " " + (isSecretKey.test(entry.key()) ? "*omitted*" : entry.value()))
+            .sorted()
+            .collect(Collectors.joining("\n"));
+        LOG.info("Configuration:\n{}", keys);
     }
 
     private void startHealthcheckServer() {
