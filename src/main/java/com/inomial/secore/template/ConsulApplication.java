@@ -1,6 +1,9 @@
 
 package com.inomial.secore.template;
 
+import com.inomial.secore.health.Healthcheck;
+import com.inomial.secore.health.kafka.KafkaHealthcheck;
+import com.inomial.secore.health.postgres.PostgresHealthcheck;
 import com.inomial.secore.kafka.KafkaHeaderMapper;
 import com.inomial.secore.kafka.KafkaMessage;
 import com.inomial.secore.kafka.MessageConsumer;
@@ -8,9 +11,6 @@ import com.inomial.secore.kafka.MessageHandler;
 import com.inomial.secore.kafka.MessageProducer;
 import com.inomial.secore.mon.MonitoringServer;
 import com.inomial.secore.scope.Scope;
-import com.telflow.assembly.healthcheck.Healthcheck;
-import com.telflow.assembly.healthcheck.kafka.KafkaHealthcheck;
-import com.telflow.assembly.healthcheck.postgres.PostgresHealthcheck;
 import com.telflow.factory.configuration.management.ConsulManager;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -24,8 +24,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

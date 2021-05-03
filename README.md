@@ -25,11 +25,12 @@ To use this template for your own project, follow these very simple steps:
 - Change `settings.gradle` to set the project name.
 - Change `build.gradle` to set the project description.
 - Replace `secore-template` in `docker-compose.yml`.
-- Replace 'secore-template` in `docker-compose-test.yml`.
-- Run "./gradlew clean" to get rid of any secore artefacts (also check in docker/).
-- Build and run the microservice: `./run`.
-- Uncomment the lines in build.gradle if you want to use grow.
-- Delete Telflow files: `rm -r pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java src/main/resources/schema`.
+- Replace `secore-template` in `docker-compose-test.yml`.
+- Run `./gradlew clean` to get rid of any secore artefacts (also check in docker/).
+- Delete Telflow files: `rm -r pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java src/main/resources`.
+- Build and run the microservice: `./gradlew build` and then `docker-compose up`.
+- Uncomment the lines in `build.gradle` if you want to use grow.
+- Uncomment the line in `Dockerfile` if QL needs to access the database of this microservice. 
 - Update `README.md` to remove these instructions :)
 
 #### Telflow Specific
@@ -93,55 +94,12 @@ Internal application repositories can be named consistent with the service name.
 
 ### Starting applications (Inomial)
 
-Use the `./run` script as a one-stop-shop command to compile your project,
-build a docker image and container, and run the microservice.
+Run `./gradlew build` to build a docker image and container and compile your project 
+and then run `docker-compose up` to run the microservice.
 
 The microservice will run in the foreground of the terminal it was launched from.
   * Press Ctrl-C to terminate the microservice and return to the shell prompt.
   * Press Ctrl-P,Ctrl-Q to detach the microservice from foreground and leave running.
   * Press Ctrl-\ to obtain an instant thread/heap report from the microservice JVM.
-
-The microservice's docker container by default will take on a name of the following format:
-
-  ```
-  ${USER}_${SERVICE}_1
-  ```
-
-where:
-  * `${USER}` is your UNIX username (this is to distinguish your built container
-    from the `devstack_xxxx_1` containers).
-  * `${SERVICE}` is the name of the project.
-
-The `./run` script also supports some command-line arguments that can perform additional
-tasks or set JVM system properties or performance settings when launching your microservice,
-in order to spare you from having to edit build script files for these common tasks.
-
-Type `./run --help` to see a list of supported command-line arguments.
-
-Type `./run clean` to force Gradle to execute the `clean` task before building.
-
-Type `./run debug` to make the microservice JVM pause on startup until a remote
-debugger connects to the port `9009/tcp` inside the docker container (you will
-need to make a port mapping in `docker-compose.yml` to expose this port on the
-host machine if you want to connect an IDE debugger such as Eclipse or
-IntelliJ). This can be useful if you need to set a breakpoint inside the
-`main()` method.
-
-Type `./run -Dname.of.system.property=value ...` to set JVM system properties
-upon startup for this invocation of the microservice *only*. This can be useful
-if you want to enable verbose or diganostic logging on a library your
-microservice uses.
-
-#### Launching the project from out-of-directory (Inomial)
-
-The `run` script will happily work from any current directory; it'll simply figure out
-the relative paths to its requisite inputs and launch the commands with the correct
-paths. For instance, you could launch a new microservice that you haven't yet checked
-out from GitHub with just two shell commands:
-
-  ```sh
-  git clone https://github.com/inomial/secore-template.git /path/to/working/copy/secore-template
-  /path/to/working/copy/secore-template/run
-  ```
 
 

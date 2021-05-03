@@ -64,7 +64,7 @@ dependencies {
   implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
   implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
 
-  implementation 'com.inomial:secore:3.0.6'
+  implementation 'com.inomial:secore:4.0.0'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
@@ -76,11 +76,6 @@ dependencies {
 
   // Delete this if you do not need Consul support:
   implementation 'com.telflow.factory:configuration-management:1.0.0'
-
-  // healthcheck server:
-  implementation 'com.telflow.assembly:healthcheck:10.10.10'
-  implementation 'org.eclipse.jetty:jetty-server:9.4.29.v20200521'
-  implementation 'org.eclipse.jetty:jetty-webapp:9.4.29.v20200521'
 
   testImplementation 'junit:junit:4.12'
 }

@@ -4,9 +4,14 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-sed -i "s|^//\( *dependsOn 'growJar'\)|\1|" build.gradle
-sed -i "s|//\( *runtimeOnly 'com.inomial:sql-core:.*\)|\1|" build.gradle
-sed -i "s|//\( *runtimeOnly 'com.inomial:sql-test:.*\)|\1|" build.gradle
+sed=sed
+if [ "$(uname)" = Darwin ]; then
+  sed=gsed
+fi
+
+$sed -i "s|^//\( *dependsOn 'growJar'\)|\1|" build.gradle
+$sed -i "s|//\( *runtimeOnly 'com.inomial:sql-core:.*\)|\1|" build.gradle
+$sed -i "s|//\( *runtimeOnly 'com.inomial:sql-test:.*\)|\1|" build.gradle
 mkdir -pv src/main/grow
 schema=tpltest
 echo $schema >> src/main/grow/schema.grow

@@ -1,17 +1,10 @@
 
 package com.inomial.secore.template;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.inomial.secore.health.HealthcheckServer;
+import com.inomial.secore.health.InitialisedHealthCheck;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-
-import com.inomial.secore.kafka.KafkaProperties;
-import com.inomial.secore.mon.MonitoringServer;
-import com.telflow.assembly.healthcheck.Healthcheck;
-import com.telflow.assembly.healthcheck.kafka.KafkaHealthcheck;
-import com.telflow.assembly.healthcheck.postgres.PostgresHealthcheck;
 
 public class Main {
 
@@ -31,9 +24,10 @@ public class Main {
             //
             health = new HealthcheckServer();
             //
-            // → → → → → If your application does not use consul, ← ← ← ← ←
-            // → → → → → uncomment these and adjust to suit:      ← ← ← ← ←
-            //
+            // → → → → → If your application does not use consul,    ← ← ← ← ←
+            // → → → → → uncomment to use either option 1 or 2 below ← ← ← ← ←
+            // → → → → → and adjust to suit:                         ← ← ← ← ←
+            // → → → → → Option 1: when need to specify values to initialize
 //            Map<String, Healthcheck> checks = new HashMap<>();
 //            checks.put("kafka", new KafkaHealthcheck(KafkaProperties.getBootstrapServer(), 10000L));
 //            String url = System.getenv("DS_URL");
@@ -42,7 +36,17 @@ public class Main {
 //            checks.put("postgresql", new PostgresHealthcheck(url, username, password));
 //            checks.put("initialised", initialisedHealthCheck);
 //            // … add other checks if you have some …
-//            health.startServer(getAppName(), checks, 150L, MonitoringServer.DEFAULT_PORT);
+//            health.startServer(System.getenv("SERVICE") + "." + System.getenv("INSTANCE") + "." + System.getenv("TASK_SLOT"),
+//                               checks,
+//                               150L,
+//                               MonitoringServer.DEFAULT_PORT);
+            // → → → → → Option 2: when use default values to initialize
+//            InitialisedHealthCheck initialisedHealthCheck = health.addInitialisedHealthCheck();
+//            health.addPostgresHealthcheck();
+//            health.addKafkaHealthcheck();
+//            // … add other checks if you have some such as Kafka MessageConsumer/ManagedConsumer
+//            health.addManagedConsumerHealthcheck(managedConsumer);
+//            health.startDefaultServer();
 
             // → → → → → If your application does not use consul, ← ← ← ← ←
             // → → → → → delete the following line and start your ← ← ← ← ←
@@ -66,10 +70,5 @@ public class Main {
             LoggerFactory.getLogger(Main.class).error("Failed to start application.", ex);
             System.exit(1);
         }
-    }
-
-    public static String getAppName()
-    {
-      return System.getenv("SERVICE") + "." + System.getenv("INSTANCE") + "." + System.getenv("TASK_SLOT");
     }
 }
