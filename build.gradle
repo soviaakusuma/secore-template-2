@@ -15,8 +15,8 @@ buildscript {
 plugins {
   id 'java'
   id 'com.inomial.grow-plugin' version '1.2.3'
-  id "com.github.ben-manes.versions" version "0.33.0"
-  id 'io.spring.dependency-management' version '1.0.1.RELEASE'
+  id "com.github.ben-manes.versions" version "0.38.0"
+  id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 }
 
 apply plugin: "application"
@@ -51,20 +51,17 @@ dependencyManagement {
 dependencies {
   // use `./gradlew dependencyUpdates` to check for updates to these dependencies
 
-  // Use this API to log
-  implementation 'org.slf4j:slf4j-api:1.7.30'
-
   // Supply log4j2 logging implementation, plus slf4j bindings.
-  implementation 'com.telflow.logging:telflow-logging:10.10.10'
-  implementation 'org.apache.logging.log4j:log4j-api'
-  implementation 'org.apache.logging.log4j:log4j-core'
+  implementation 'com.telflow.logging:telflow-logging:10.11.2'
+  implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
+  implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
   implementation 'org.slf4j:jul-to-slf4j:1.7.30'
-  implementation 'org.apache.logging.log4j:log4j-1.2-api'
-  implementation 'org.apache.logging.log4j:log4j-slf4j-impl'
+  implementation 'org.apache.logging.log4j:log4j-1.2-api:2.14.1'
+  implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1'
   implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
 
-  implementation 'com.inomial:secore:4.0.0'
+  implementation 'com.inomial:secore:4.0.1'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
@@ -77,7 +74,7 @@ dependencies {
   // Delete this if you do not need Consul support:
   implementation 'com.telflow.factory:configuration-management:1.0.0'
 
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'junit:junit:4.13.2'
 }
 
 repositories {

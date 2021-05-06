@@ -40,7 +40,7 @@
     <!-- Use -Dexec.args=wait to pause the application on exec:java command -->
     <exec.args></exec.args>
 
-    <secore.version>4.0.0</secore.version>
+    <secore.version>4.0.1</secore.version>
     <log4j.version>2.13.3</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
     <flyway.version>6.5.7</flyway.version>
