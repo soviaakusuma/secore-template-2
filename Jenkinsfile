@@ -14,6 +14,7 @@ pipeline {
     }
 
     parameters {
+        booleanParam(name: 'SKIP_TAG_AND_PUBLISH', defaultValue: false, description: 'Skips tagging and publishing steps for when you merge changes but dont want to bump version and publish a new build')
         booleanParam(name: 'TEST_UPGRADE', defaultValue: true, description: 'Disable to skip Grow schema upgrade test')
     }
 
@@ -115,6 +116,9 @@ pipeline {
         stage('Tag') {
             when {
                 branch 'master'
+                expression {
+                    return ! params.SKIP_TAG_AND_PUBLISH
+                }
             }
             environment {
                 GIT_AUTH = credentials('github_inomial-ci')
@@ -131,11 +135,18 @@ pipeline {
         stage('Release') {
             when {
                 branch 'master'
+                expression {
+                    return ! params.SKIP_TAG_AND_PUBLISH
+                }
             }
             parallel {
 //                stage('Publish to Maven') {
+//                    environment {
+//                        MAVEN_REPO = 'sftp://maven.inomial.com:22/maven'
+//                        MAVEN_AUTH = credentials('ipa_cruisecontrol')
+//                    }
 //                    steps {
-//                        sh "${gradle} -P ssh.user=cruisecontrol upload"
+//                        sh "${gradle} publish"
 //                    }
 //                }
 //                stage('Archive Docker image') {
