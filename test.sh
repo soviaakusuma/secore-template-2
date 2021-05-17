@@ -25,7 +25,7 @@ return_status() {
   if [ "${BUILD_URL:-}" ]; then
     mkdir -p test-results
     docker-compose logs --no-color --timestamps > test-results/docker-compose.log 2>&1
-    docker-compose run --rm -T testsql sh -c 'pg_dump -Fc $TEST_DB' > test-results/test.pgc
+    PGVERSION_CLIENT=$PGVERSION docker-compose run --rm -T testsql sh -c 'pg_dump -Fc $TEST_DB' > test-results/test.pgc
     docker-compose --no-ansi down --volumes --remove-orphans
   fi
 

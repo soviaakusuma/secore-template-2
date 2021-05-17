@@ -19,7 +19,7 @@ services:
 
   testsql:
     # need an image with psql and either unzip or jar
-    image: postgres:${PGVERSION-10}-alpine
+    image: postgres:${PGVERSION_CLIENT:-10}-alpine
     volumes:
     - .:/app:ro
     environment:

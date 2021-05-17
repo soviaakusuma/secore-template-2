@@ -16,6 +16,7 @@ pipeline {
     parameters {
         booleanParam(name: 'SKIP_TAG_AND_PUBLISH', defaultValue: false, description: 'Skips tagging and publishing steps for when you merge changes but dont want to bump version and publish a new build')
         booleanParam(name: 'TEST_UPGRADE', defaultValue: true, description: 'Disable to skip Grow schema upgrade test')
+        booleanParam(name: 'IGNORE_VULNERABILITIES', defaultValue: false, description: 'Enable to allow the scan stage to pass even if critical vulnerabilities are detected')
     }
 
     stages {
@@ -58,32 +59,46 @@ pipeline {
             }
         }
         stage('Scan') {
+            agent {
+                docker {
+                    reuseNode true
+                    image 'aquasec/trivy'
+                    args '-u root -v "$HOME/trivy/:/root/.cache/trivy" -v /var/run/docker.sock:/var/run/docker.sock --entrypoint='
+                }
+            }
             environment {
                 IMAGE = """${ sh(script: '. build/version.properties && echo inomial.io/$project', returnStdout: true).trim() }"""
-                TRIVY_CACHE_SOURCE = "${env.HOME}/trivy/"
-                TRIVY_CACHE_MOUNT = "/tmp/trivy/"
+                TRIVY_NO_PROGRESS = "true"
+                TRIVY_IGNORE_UNFIXED = "true"
+                TRIVY_EXIT_CODE = "1"
             }
             steps {
-                sh '''
-                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
-                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
-                        --clear-cache
-                '''
-                sh '''
-                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
-                        -v /var/run/docker.sock:/var/run/docker.sock \
-                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
-                        --exit-code 0 --severity UNKNOWN,LOW,MEDIUM,HIGH \
-                        --no-progress "$IMAGE"
-                '''
-                sh '''
-                    docker run --rm -v "$TRIVY_CACHE_SOURCE:$TRIVY_CACHE_MOUNT" \
-                        -v /var/run/docker.sock:/var/run/docker.sock \
-                        aquasec/trivy --cache-dir "$TRIVY_CACHE_MOUNT" \
-                        --exit-code 1 --severity CRITICAL \
-                        --ignore-unfixed \
-                        --no-progress "$IMAGE"
-                '''
+                sh "trivy image --clear-cache"
+                script {
+                    // non-critical vulnerabilities will mark the stage as unstable
+                    catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                        try {
+                            sh 'trivy image --severity UNKNOWN,LOW,MEDIUM,HIGH "$IMAGE"'
+                        } catch (Throwable e) {
+                            if (env.CHANGE_ID) {
+                                pullRequest.comment('Non-critical vulnerabilities found')
+                            }
+                            error "Caught ${e.toString()}"
+                        }
+                    }
+
+                    // critical vulnerabilities will fail the job, unless the IGNORE_VULNERABILITIES build parameter is enabled
+                    catchError(buildResult: params.IGNORE_VULNERABILITIES ? 'SUCCESS' : 'UNSTABLE', stageResult: 'FAILURE') {
+                        try {
+                            sh 'trivy image --severity CRITICAL "$IMAGE"'
+                        } catch (Throwable e) {
+                            if (env.CHANGE_ID) {
+                                pullRequest.comment((params.IGNORE_VULNERABILITIES ? '[IGNORED]' : '[FATAL]') + ' Critical vulnerabilities found')
+                            }
+                            error "Caught ${e.toString()}"
+                        }
+                    }
+                }
             }
         }
         stage('Test') {
