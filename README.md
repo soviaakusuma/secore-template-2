@@ -28,6 +28,7 @@ To use this template for your own project, follow these very simple steps:
 - Replace `secore-template` in `docker-compose-test.yml`.
 - Run `./gradlew clean` to get rid of any secore artefacts (also check in docker/).
 - Delete Telflow files: `rm -r pom.xml docker/Dockerfile.telflow src/main/java/com/inomial/secore/template/ConsulApplication.java src/main/resources`.
+- If the service is not using grow (does not have a database) delete the related files: `rm -r test.sh testsql.sh postgres-init.sh docker-compose-test.yml .env src/test/sql/ src/main/grow/`
 - Build and run the microservice: `./gradlew build` and then `docker-compose up`.
 - Uncomment the lines in `build.gradle` if you want to use grow.
 - Uncomment the line in `Dockerfile` if QL needs to access the database of this microservice. 

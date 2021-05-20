@@ -24,7 +24,7 @@ apply plugin: "com.inomial.grow-plugin"
 
 // description = "change me to a brief description of what this application does. this is viewable in `gradle -q projects` and is also set in the container image labels."
 
-if (description == null && project.name != 'secore-template') {
+if (description == null) {
   throw new GradleException('description not set in build.gradle')
 }
 
