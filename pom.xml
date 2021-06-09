@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>10.10.10</version>
+    <version>11.5.0</version>
   </parent>
 
   <groupId>com.telflow</groupId>
