@@ -114,12 +114,6 @@ if [ "$sqltests" ]; then
     exit 1
   fi
 
-  initsql="init.sql"
-  if [ -f "$initsql" ]; then
-    echo "Running $initsql..."
-    psqlfile "$initsql"
-  fi
-
   cd "$grow_dir"
 
   echo "Unpacking grow ($grow_jar)..."
@@ -139,6 +133,12 @@ if [ "$sqltests" ]; then
 
   export grow_dir
   cd -
+
+  initsql="init.sql"
+  if [ -f "$initsql" ]; then
+    echo "Running $initsql..."
+    psqlfile "$initsql"
+  fi
 
   echo "Running ${#sqltests[@]} tests..."
   for test in "${sqltests[@]}"; do
