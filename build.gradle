@@ -69,10 +69,10 @@ dependencies {
   // runtimeOnly 'com.inomial:sql-test:1.0';
 
   // Include this if you're working with messages
-  // compile 'com.inomial:cim:1.0.+'
+  // implementation 'com.inomial:cim:1.0.+'
 
-  // Delete this if you do not need Consul support:
-  implementation 'com.telflow.factory:configuration-management:1.0.0'
+  // Include this if you need Consul support:
+  // implementation 'com.telflow.factory:configuration-management:1.0.0'
 
   testImplementation 'junit:junit:4.13.2'
 }
