@@ -5,12 +5,12 @@
 #
 # In the future we would like to unify Jackson versions between secore and
 # Telflow assembly so that no logging dependency embedding is needed.
-FROM registry.cloud.telflow.com/dgit_private/alpine_tf_java:1 AS maven_files
+FROM registry.cloud.telflow.com/dgit_private/alpine_tf_java:11 AS maven_files
 COPY maven /maven
 RUN mkdir /maven/telflow-common \
     && mv /maven/*telflow-logging* /maven/telflow-common
 
-FROM registry.cloud.telflow.com/dgit_private/alpine_tf_java:1
+FROM registry.cloud.telflow.com/dgit_private/alpine_tf_java:11
 
 ARG version
 ARG component
