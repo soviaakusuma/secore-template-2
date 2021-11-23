@@ -61,7 +61,7 @@ dependencies {
   implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1'
   implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
 
-  implementation 'com.inomial:secore:4.0.1'
+  implementation 'com.inomial:secore:4.0.11'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
