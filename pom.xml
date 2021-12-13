@@ -38,7 +38,7 @@
     <app.name>telflow-${component.name}</app.name>
 
     <secore.version>4.0.11</secore.version>
-    <log4j.version>2.13.3</log4j.version>
+    <log4j.version>2.15.0</log4j.version>
     <slf4j.version>1.7.30</slf4j.version>
     <flyway.version>6.5.7</flyway.version>
 

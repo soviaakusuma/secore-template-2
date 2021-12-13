@@ -52,16 +52,17 @@ dependencies {
   // use `./gradlew dependencyUpdates` to check for updates to these dependencies
 
   // Supply log4j2 logging implementation, plus slf4j bindings.
+  ext.log4j_version = '2.15.0'
   implementation 'com.telflow.logging:telflow-logging:11.5.0'
-  implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
-  implementation 'org.apache.logging.log4j:log4j-core:2.14.1'
+  implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
+  implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
   implementation 'org.slf4j:jul-to-slf4j:1.7.30'
-  implementation 'org.apache.logging.log4j:log4j-1.2-api:2.14.1'
-  implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1'
+  implementation "org.apache.logging.log4j:log4j-1.2-api:${log4j_version}"
+  implementation "org.apache.logging.log4j:log4j-slf4j18-impl:${log4j_version}"
   implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
 
-  implementation 'com.inomial:secore:4.0.11'
+  implementation 'com.inomial:secore:4.0.12'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
