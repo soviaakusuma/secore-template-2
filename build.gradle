@@ -58,7 +58,7 @@ dependencies {
 
   // Supply log4j2 logging implementation, plus slf4j bindings.
   ext.log4j_version = '2.15.0'
-  implementation 'com.telflow.logging:telflow-logging:11.5.0'
+  implementation 'com.telflow.logging:telflow-logging:11.6.4'
   implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
   implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
