@@ -17,6 +17,7 @@ plugins {
   id 'com.inomial.grow-plugin' version '1.2.3'
   id "com.github.ben-manes.versions" version "0.38.0"
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+  id 'jacoco'
 }
 
 apply plugin: "application"
@@ -39,6 +40,10 @@ tasks.distZip.enabled = false
 
 tasks.withType(JavaCompile) {
   options.compilerArgs << '-parameters'
+}
+
+configurations {
+  jacocoAgent
 }
 
 // runtime logging dependencies
@@ -76,6 +81,8 @@ dependencies {
   // implementation 'com.telflow.factory:configuration-management:1.0.0'
 
   testImplementation 'junit:junit:4.13.2'
+
+  jacocoAgent 'org.jacoco:org.jacoco.agent:0.8.7'
 }
 
 repositories {
@@ -169,12 +176,21 @@ task copyToLib( type: Copy ) {
 task cleanDocker( type: Delete ) {
   delete fileTree(
       dir: 'docker',
-      include: ['*.jar', 'lib/**']
+      include: ['*.jar', 'lib/**', 'agentlib/**']
     )
   delete 'docker/GROW'
 }
 
-mkdocker { dependsOn cleanDocker, copyToLib }
+// Obtains the JaCoCo agent .jar
+task installJacocoAgentJar(type: Copy) {
+  shouldRunAfter cleanDocker
+  from ({ zipTree(configurations.jacocoAgent.singleFile) }) {
+    include 'jacocoagent.jar'
+  }
+  into 'docker/agentlib'
+}
+
+mkdocker { dependsOn cleanDocker, copyToLib, installJacocoAgentJar }
 
 clean.dependsOn cleanDocker
 
@@ -188,3 +204,27 @@ artifacts {
   // Include source archive in Inomial Maven repository so Javadoc descriptions are available.
   archives sourcesJar
 }
+
+test {
+  finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+  reports {
+    xml.required = true
+  }
+  dependsOn test // tests are required to run before generating the report
+}
+
+jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit {
+        counter = 'INSTRUCTION'
+        minimum = 0.75
+      }
+    }
+  }
+}
+
+jacocoTestReport.finalizedBy(jacocoTestCoverageVerification)

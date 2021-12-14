@@ -32,6 +32,7 @@ build
 gradlew.bat
 **/docker/GROW/
 **/docker/lib/
+**/docker/agentlib/
 
 # Postgresql dump files
 **/*.pgc

@@ -103,4 +103,35 @@ The microservice will run in the foreground of the terminal it was launched from
   * Press Ctrl-P,Ctrl-Q to detach the microservice from foreground and leave running.
   * Press Ctrl-\ to obtain an instant thread/heap report from the microservice JVM.
 
+### Collecting code coverage metrics (Inomial)
 
+You can also profile your microservice for code coverage using the
+[JaCoCo](https://www.jacoco.org/) framework.
+
+Launching your microservice with `docker-compose up` will start it with the JaCoCo JVM
+agent enabled. Run your integration test suite against your microservice to collect
+code coverage data. When done, shut down your microservice either by pressing Ctrl-C
+from the controlling terminal or otherwise stopping the docker container.
+
+The JaCoCo execution data will be saved to `docker/agentlib/jacoco.exec` when the
+microservice JVM terminates. You can import the data into [EclEmma](https://www.eclemma.org/)
+in Eclipse for visualisation purposes, or use [JaCoCo's reporting tools](https://www.jacoco.org/jacoco/trunk/doc/cli.html).
+
+The JaCoCo agent can also run in TCP server/client mode, this is controlled by the
+javaagent parameters in the JAVA_OPTS environment variable passed to the container by
+docker-compose.yml.
+See the [JaCoCo Java agent docs](https://www.eclemma.org/jacoco/trunk/doc/agent.html) for more options.
+
+**Note:** Prior to importing the `jacoco.exec` file into EclEmma you will need to set
+the output folder for the `src/main/java` source folder in your microservice project's
+*Build Path* configuration in Eclipse to `build/classes/java/main` (same output
+directory that Gradle uses) since EclEmma needs to refer to the **exact** same `.class`
+files that were loaded inside the JVM during the coverage profiling run.
+
+If you neglect to do this then the coverage will erroneously show up as 0% (all source
+lines highlighted in red).
+
+**Note 2:** It may also help to temporarily turn off automatic background recompilation
+in Eclipse (*Project* menu -> uncheck *Build Automatically*) when using EclEmma to
+prevent Eclipse from overwriting Gradle's output .class files if you alias both their
+output folders to be the same directory.
