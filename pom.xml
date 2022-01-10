@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>11.5.4</version>
+    <version>11.6.6</version>
   </parent>
 
   <groupId>com.telflow</groupId>
@@ -37,9 +37,7 @@
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
 
-    <secore.version>4.0.11</secore.version>
-    <log4j.version>2.15.0</log4j.version>
-    <slf4j.version>1.7.30</slf4j.version>
+    <secore.version>4.0.14</secore.version>
     <flyway.version>6.5.7</flyway.version>
 
     <maven.build.helper.version>3.2.0</maven.build.helper.version>

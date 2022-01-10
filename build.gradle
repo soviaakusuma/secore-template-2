@@ -15,7 +15,7 @@ buildscript {
 plugins {
   id 'java'
   id 'com.inomial.grow-plugin' version '1.2.3'
-  id "com.github.ben-manes.versions" version "0.38.0"
+  id "com.github.ben-manes.versions" version "0.41.0"
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'jacoco'
 }
@@ -46,10 +46,15 @@ configurations {
   jacocoAgent
 }
 
+ext {
+  log4j_version = '2.17.1'
+  slf4j_version = '1.7.32'
+}
+
 // runtime logging dependencies
 dependencyManagement {
   imports {
-    mavenBom 'org.apache.logging.log4j:log4j-bom:2.13.3'
+    mavenBom "org.apache.logging.log4j:log4j-bom:${log4j_version}"
   }
 }
 
@@ -57,17 +62,16 @@ dependencies {
   // use `./gradlew dependencyUpdates` to check for updates to these dependencies
 
   // Supply log4j2 logging implementation, plus slf4j bindings.
-  ext.log4j_version = '2.16.0'
-  implementation 'com.telflow.logging:telflow-logging:11.6.4'
+  implementation 'com.telflow.logging:telflow-logging:11.6.6'
   implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
   implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
-  implementation 'org.slf4j:jul-to-slf4j:1.7.30'
+  implementation "org.slf4j:jul-to-slf4j:${slf4j_version}"
   implementation "org.apache.logging.log4j:log4j-1.2-api:${log4j_version}"
   implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
-  implementation 'org.slf4j:jcl-over-slf4j:1.7.30'
+  implementation "org.slf4j:jcl-over-slf4j:${slf4j_version}"
 
-  implementation 'com.inomial:secore:4.0.12'
+  implementation 'com.inomial:secore:4.0.14'
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
