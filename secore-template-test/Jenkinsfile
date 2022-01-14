@@ -42,7 +42,14 @@ pipeline {
 
                 sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
                 sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
-                sh "${gradle} clean build -Pdescription=test"
+
+                sh "echo description=test >> gradle.properties"
+                
+                echo "Verify build fails if it is attempted before updating gradle.lockfile"
+                sh "if ${gradle} clean build; then echo the build should have failed if gradle.lockfile has not been updated; exit 1; fi"
+                
+                sh "${gradle} dependencies --write-locks"
+                sh "${gradle} clean build"
             }
         }
         stage('Test healthcheck') {
@@ -53,10 +60,12 @@ pipeline {
         stage('Build with Grow') {
             steps {
                 sh "secore-template-test/enable-grow-build.sh"
+                // dependencies have been changed so update lockfile
+                sh "${gradle} dependencies --write-locks"
 
                 sh "if [ '${versionNumberInt}' != null ]; then find . -path '*/src/main/grow' -type d -print0 | xargs -0 -P4 -I{} sh -c \"echo 'Setup {}/package.version' && echo ${versionNumberInt} > '{}/package.version'\"; fi"
                 sh "find . -type f -name mkdocker -print0 | xargs -0 -P4 -I{} sh -ec 'vfile=\$(dirname \"{}\")/build.version; if [ -f \"\$vfile\" ]; then echo \"Setup \$vfile\"; echo ${versionNumber} > \"\$vfile\"; fi'"
-                sh "${gradle} clean build -Pdescription=test"
+                sh "${gradle} clean build"
             }
         }
         stage('Test Grow') {

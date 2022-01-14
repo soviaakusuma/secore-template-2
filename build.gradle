@@ -20,6 +20,12 @@ plugins {
   id 'jacoco'
 }
 
+// lock dependency versions, run `./gradlew dependencies --write-locks` to update gradle.lockfile
+dependencyLocking {
+  lockAllConfigurations()
+  lockMode = LockMode.STRICT
+}
+
 apply plugin: "application"
 apply plugin: "com.inomial.grow-plugin"
 
@@ -49,6 +55,7 @@ configurations {
 ext {
   log4j_version = '2.17.1'
   slf4j_version = '1.7.32'
+  secore_version = '4.0.14'
 }
 
 // runtime logging dependencies
@@ -71,7 +78,7 @@ dependencies {
   implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
   implementation "org.slf4j:jcl-over-slf4j:${slf4j_version}"
 
-  implementation 'com.inomial:secore:4.0.14'
+  implementation "com.inomial:secore:${secore_version}"
 
   // Include this, for example, if you want to use grow (also uncomment: dependsOn 'growJar')
   // runtimeOnly 'com.inomial:sql-core:1.1.+';
@@ -90,32 +97,45 @@ dependencies {
 }
 
 repositories {
-  maven {
-    url "https://maven.inomial.com/"
-    content {
+  mavenCentral()
+
+  exclusiveContent {
+    forRepository {
+      maven {
+        url "https://maven.inomial.com/"
+      }
+    }
+
+    forRepository {
+      if (version == "DEV") {
+        mavenLocal()
+      }
+    }
+
+    filter {
       includeGroupByRegex "com\\.inomial.*"
     }
   }
-  maven {
-    url "https://nexus.office.dgit.biz:8443/nexus/content/repositories/dgit-maven-releases"
-    mavenContent {
-      releasesOnly()
+
+  exclusiveContent {
+    forRepository {
+      maven {
+        url "https://nexus.office.dgit.biz:8443/nexus/content/repositories/dgit-maven-releases"
+        mavenContent {
+          releasesOnly()
+        }
+      }
     }
-    content {
+
+    forRepository {
+      if (version == "DEV") {
+        mavenLocal()
+      }
+    }
+
+    filter {
       includeGroupByRegex "com\\.telflow.*"
       includeGroupByRegex "com\\.dgitsystems.*"
-    }
-  }
-
-  mavenCentral()
-
-  if (version == "DEV") {
-    mavenLocal {
-      content {
-        includeGroupByRegex "com\\.inomial.*"
-        includeGroupByRegex "com\\.telflow.*"
-        includeGroupByRegex "com\\.dgitsystems.*"
-      }
     }
   }
 }
