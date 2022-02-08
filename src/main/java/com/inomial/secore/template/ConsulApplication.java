@@ -40,8 +40,8 @@ public class ConsulApplication {
 
     /**
      * This application's namespace for consul configuration.
-     * Use a name as per <a href=https://dgit.atlassian.net/wiki/spaces/DPE/pages/988123028/Consul+KV+Hierarchy">Consul
-     * doco</a>
+     * Use a name as per
+     * <a href="https://dgit.atlassian.net/wiki/spaces/DPE/pages/988123028/Consul+KV+Hierarchy">Consul doco</a>
      */
     static final String CONSUL_APP_NAME = "myapp";
 
