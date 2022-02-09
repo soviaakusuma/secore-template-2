@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>11.6.6</version>
+    <version>11.6.7</version>
   </parent>
 
   <groupId>com.telflow</groupId>
@@ -37,7 +37,7 @@
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
 
-    <secore.version>4.0.14</secore.version>
+    <secore.version>4.0.15</secore.version>
     <flyway.version>6.5.7</flyway.version>
 
     <maven.build.helper.version>3.2.0</maven.build.helper.version>
@@ -246,6 +246,7 @@
         <artifactId>docker-maven-plugin</artifactId>
         <version>${docker-maven-plugin.version}</version>
         <configuration>
+          <imagePullPolicy>Always</imagePullPolicy>
           <images>
             <image>
               <external>
@@ -351,6 +352,17 @@
   </build>
 
   <repositories>
+    <repository>
+      <id>nexus-snapshots</id>
+      <name>Internal Snapshots</name>
+      <url>https://nexus.office.dgit.biz:8443/nexus/content/repositories//dgit-maven-snapshots</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
     <repository>
       <id>nexus-releases</id>
       <name>Internal Releases</name>
