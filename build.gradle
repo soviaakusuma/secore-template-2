@@ -15,14 +15,15 @@ buildscript {
 plugins {
   id 'java'
   id 'com.inomial.grow-plugin' version '1.2.3'
-  id "com.github.ben-manes.versions" version "0.41.0"
+  id "com.github.ben-manes.versions" version "0.42.0"
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
   id 'jacoco'
 }
 
 // lock dependency versions, run `./gradlew dependencies --write-locks` to update gradle.lockfile
 dependencyLocking {
-  lockAllConfigurations()
+  // lockAllConfigurations causes issues for dependencyUpdates (ben-manes/gradle-versions-plugin)
+  "$System.env.UNLOCK_DEPENDENCIES" == "true" ? unlockAllConfigurations() : lockAllConfigurations()
   lockMode = LockMode.STRICT
 }
 
@@ -53,9 +54,9 @@ configurations {
 }
 
 ext {
-  log4j_version = '2.17.1'
-  slf4j_version = '1.7.35'
-  secore_version = '4.0.15'
+  log4j_version = '2.17.2'
+  slf4j_version = '1.7.36'
+  secore_version = '4.0.16'
 }
 
 // runtime logging dependencies
@@ -69,7 +70,7 @@ dependencies {
   // use `./gradlew dependencyUpdates` to check for updates to these dependencies
 
   // Supply log4j2 logging implementation, plus slf4j bindings.
-  implementation 'com.telflow.logging:telflow-logging:11.6.7'
+  implementation 'com.telflow.logging:telflow-logging:11.6.9'
   implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
   implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
