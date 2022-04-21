@@ -56,7 +56,7 @@ configurations {
 ext {
   log4j_version = '2.17.2'
   slf4j_version = '1.7.36'
-  secore_version = '4.0.16'
+  secore_version = '4.0.19'
 }
 
 // runtime logging dependencies
@@ -67,10 +67,10 @@ dependencyManagement {
 }
 
 dependencies {
-  // use `./gradlew dependencyUpdates` to check for updates to these dependencies
+  // use `UNLOCK_DEPENDENCIES=true ./gradlew dependencyUpdates` to check for updates to these dependencies
 
   // Supply log4j2 logging implementation, plus slf4j bindings.
-  implementation 'com.telflow.logging:telflow-logging:11.6.9'
+  implementation 'com.telflow.logging:telflow-logging:11.6.10'
   implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
   implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
   // ensure 3rd party libs using other logging APIs are forwarded to slf4j:
