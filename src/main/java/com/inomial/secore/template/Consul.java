@@ -11,12 +11,15 @@ package com.inomial.secore.template;
 
 import com.inomial.secore.mon.MonitoringServer;
 import com.telflow.factory.configuration.management.ConsulManager;
-
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Configuration data obtained from consul
+ */
+@SuppressWarnings("checkstyle:javadocvariable")
 public enum Consul {
 
     //
@@ -93,7 +96,7 @@ public enum Consul {
 
         private final Function<String, String> getValue;
 
-        private KeyType(Function<String, String> map, Function<String, String> get) {
+        KeyType(Function<String, String> map, Function<String, String> get) {
             this.toKey = map;
             this.getValue = get;
         }

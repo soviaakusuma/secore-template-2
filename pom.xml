@@ -9,7 +9,8 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>11.6.10</version>
+    <version>11.7.3</version>
+    <relativePath/>
   </parent>
 
   <groupId>com.telflow</groupId>
@@ -37,41 +38,20 @@
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
 
-    <secore.version>4.0.19</secore.version>
-    <flyway.version>6.5.7</flyway.version>
-
-    <maven.build.helper.version>3.2.0</maven.build.helper.version>
-    <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-    <compiler.jdk.version>1.8</compiler.jdk.version>
   </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-bom</artifactId>
-        <version>${log4j.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <dependencies>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson-databind.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -86,15 +66,6 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-guava</artifactId>
-      <version>${jackson.version}</version>
-      <exclusions>
-        <!-- Jackson depends on minimum Guava version so exclude it to get
-        an up-to-date version -->
-        <exclusion>
-          <groupId>com.google.guava</groupId>
-          <artifactId>guava</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -127,11 +98,10 @@
     <dependency>
       <groupId>com.telflow.factory</groupId>
       <artifactId>configuration-management</artifactId>
-      <version>1.0.0</version>
       <exclusions>
         <exclusion>
-          <groupId>com.inomial</groupId>
-          <artifactId>secore</artifactId>
+          <groupId>com.telflow.cim</groupId>
+          <artifactId>cim</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -190,22 +160,18 @@
     <dependency>
       <groupId>com.inomial</groupId>
       <artifactId>secore-health</artifactId>
-      <version>${secore.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inomial</groupId>
       <artifactId>secore-http</artifactId>
-      <version>${secore.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inomial</groupId>
       <artifactId>secore-kafka</artifactId>
-      <version>${secore.version}</version>
     </dependency>
     <dependency>
       <groupId>com.inomial</groupId>
       <artifactId>secore-sql</artifactId>
-      <version>${secore.version}</version>
     </dependency>
 
     <dependency>
@@ -215,9 +181,44 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>${mockito.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-postgres</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>${hamcrest.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-core</artifactId>
+      <version>${xmlunit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xmlunit</groupId>
+      <artifactId>xmlunit-matchers</artifactId>
+      <version>${xmlunit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-nop</artifactId>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -226,16 +227,11 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${compiler.jdk.version}</source>
-          <target>${compiler.jdk.version}</target>
-          <encoding>UTF-8</encoding>
-          <compilerArgs>
-            <arg>-parameters</arg>
-            <arg>-Xlint</arg>
-          </compilerArgs>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
@@ -244,9 +240,7 @@
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
         <configuration>
-          <imagePullPolicy>Always</imagePullPolicy>
           <images>
             <image>
               <external>
@@ -279,49 +273,6 @@
             </goals>
           </execution>
           <!-- The deploy execution is contained in the deployDockerImage profile -->
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${maven.build.helper.version}</version>
-        <executions>
-          <execution>
-            <id>parse-version</id>
-            <goals>
-              <goal>parse-version</goal>
-              <goal>cpu-count</goal>
-            </goals>
-            <configuration>
-              <propertyPrefix>project.version</propertyPrefix>
-              <versionString>${project.version}</versionString>
-            </configuration>
-          </execution>
-          <execution>
-            <id>timestamp-property</id>
-            <goals>
-              <goal>timestamp-property</goal>
-            </goals>
-            <configuration>
-              <name>build.time</name>
-              <locale>en_AU</locale>
-              <pattern>yyyy-MM-dd HH:mm z</pattern>
-              <timeZone>Australia/Melbourne</timeZone>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>${buildnumber-maven-plugin.version}</version>
-        <executions>
-          <execution>
-            <id>extract-git-information</id>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
       <plugin>

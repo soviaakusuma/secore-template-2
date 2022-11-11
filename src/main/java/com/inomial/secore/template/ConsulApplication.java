@@ -11,14 +11,7 @@ import com.inomial.secore.kafka.MessageHandler;
 import com.inomial.secore.kafka.MessageProducer;
 import com.inomial.secore.scope.Scope;
 import com.telflow.factory.configuration.management.ConsulManager;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.flywaydb.core.Flyway;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.sql.DataSource;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +22,13 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Consume configuration and updates from Consul.
@@ -44,13 +44,17 @@ public class ConsulApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulApplication.class);
 
+    private static final String DB_URL = "jdbc:postgresql://%s:%s/%s";
+
+    private static final long HEALTHCHECK_WAIT_INTERVAL = 10000L;
+
     private String kafkaEndpoint;
 
     private MessageProducer mp;
 
     private MessageConsumer mc;
 
-    public void start() throws Exception {
+    public void start() throws IOException {
         startConsul();
     }
 
@@ -58,7 +62,7 @@ public class ConsulApplication {
         LOG.info("Consul changed, updating configuration.");
         logConsulKeys();
         this.kafkaEndpoint = String.format("%s:%s", Consul.ENV_KAFKA_HOST, Consul.ENV_KAFKA_PORT);
-        Main.initialisedHealthCheck.starting();
+        Main.INITIALISED.starting();
         startHealthcheckServer();
         migrateDB();
         startKafka();
@@ -68,10 +72,10 @@ public class ConsulApplication {
         //
 
         LOG.info("Configuration applied.");
-        Main.initialisedHealthCheck.initialised();
+        Main.INITIALISED.initialised();
     }
 
-    private void logConsulKeys() {
+    private static void logConsulKeys() {
         Predicate<String> isSecretKey = k ->
             k == null || k.toLowerCase().contains("secure") || k.toLowerCase().contains("pass");
 
@@ -84,8 +88,8 @@ public class ConsulApplication {
 
     private void startHealthcheckServer() {
         Map<String, Healthcheck> checks = new HashMap<>();
-        checks.put("kafka", new KafkaHealthcheck(this.kafkaEndpoint, 10000L));
-        String url = String.format("jdbc:postgresql://%s:%s/%s",
+        checks.put("kafka", new KafkaHealthcheck(this.kafkaEndpoint, HEALTHCHECK_WAIT_INTERVAL));
+        String url = String.format(DB_URL,
             Consul.ENV_POSTGRES_HOST.value(),
             Consul.ENV_POSTGRES_PORT.value(),
             Consul.APP_POSTGRES_DB.value());
@@ -93,11 +97,11 @@ public class ConsulApplication {
             url,
             Consul.APP_POSTGRES_USER.value(),
             Consul.APP_POSTGRES_PASS.value()));
-        checks.put("initialised", Main.initialisedHealthCheck); // this is marked as done in Main
+        checks.put("initialised", Main.INITIALISED); // this is marked as done in Main
 
         Long wait = Long.valueOf(Consul.HEALTHCHECK_WAIT.value());
         Integer port = Integer.valueOf(Consul.HEALTHCHECK_PORT.value());
-        Main.health.startServer(CONSUL_APP_NAME, checks, wait, port);
+        Main.getHealthcheckServer().startServer(CONSUL_APP_NAME, checks, wait, port);
     }
 
     private void startKafka() {
@@ -146,7 +150,7 @@ public class ConsulApplication {
     protected Map<String, Object> createConsumerConfig() {
         Map<String, Object> cp = new HashMap<>();
         cp.put(ConsumerConfig.GROUP_ID_CONFIG, createConsumerId());
-        cp.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,this.kafkaEndpoint);
+        cp.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaEndpoint);
         cp.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         return cp;
     }
@@ -154,7 +158,7 @@ public class ConsulApplication {
     /**
      * @return competing consumer ID (shares same ID as all other instances of this application)
      */
-    private String createConsumerId() {
+    private static String createConsumerId() {
         return CONSUL_APP_NAME;
     }
 
@@ -163,8 +167,7 @@ public class ConsulApplication {
      */
     protected Map<String, Object> createProducerConfig() {
         Map<String, Object> pp = new HashMap<>();
-        String kafkaEndpoint = String.format("%s:%s", Consul.ENV_KAFKA_HOST, Consul.ENV_KAFKA_PORT);
-        pp.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        pp.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, this.kafkaEndpoint);
         pp.put(ProducerConfig.CLIENT_ID_CONFIG, createProducerId());
         pp.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         pp.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
@@ -174,7 +177,7 @@ public class ConsulApplication {
     /**
      * @return unique identifier ID (assuming single instance per host)
      */
-    private String createProducerId() {
+    private static String createProducerId() {
         try {
             return CONSUL_APP_NAME + "_" + InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -207,10 +210,8 @@ public class ConsulApplication {
         consulChanged();
     }
 
-    private void migrateDB() {
-        DataSource ds = null;
-
-        String url = String.format("jdbc:postgresql://%s:%s/%s",
+    private static void migrateDB() {
+        String url = String.format(DB_URL,
             Consul.ENV_POSTGRES_HOST.value(),
             Consul.ENV_POSTGRES_PORT.value(),
             Consul.APP_POSTGRES_DB.value());
@@ -222,7 +223,7 @@ public class ConsulApplication {
             locations("classpath:schema").
             load();
 
-        int result = fw.migrate();
-        LOG.info("Applied {} migrations.", result);
+        MigrateResult result = fw.migrate();
+        LOG.info("Applied {} migrations.", result.migrations.size());
     }
 }
