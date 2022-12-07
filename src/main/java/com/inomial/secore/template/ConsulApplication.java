@@ -58,21 +58,35 @@ public class ConsulApplication {
         startConsul();
     }
 
+    @SuppressWarnings("checkstyle:illegalcatch")
     private void consulChanged() {
-        LOG.info("Consul changed, updating configuration.");
-        logConsulKeys();
-        this.kafkaEndpoint = String.format("%s:%s", Consul.ENV_KAFKA_HOST, Consul.ENV_KAFKA_PORT);
-        Main.INITIALISED.starting();
-        startHealthcheckServer();
-        migrateDB();
-        startKafka();
+        try {
+            LOG.info("Consul changed, updating configuration.");
+            logConsulKeys();
+            this.kafkaEndpoint = String.format("%s:%s", Consul.ENV_KAFKA_HOST, Consul.ENV_KAFKA_PORT);
+            Main.INITIALISED.starting();
+            startHealthcheckServer();
+            migrateDB();
+            startKafka();
 
-        //
-        // → → → → → (Re)start your application here. ← ← ← ← ←
-        //
+            //
+            // → → → → → (Re)start your application here. ← ← ← ← ←
+            //
 
-        LOG.info("Configuration applied.");
-        Main.INITIALISED.initialised();
+            LOG.info("Configuration applied.");
+            Main.INITIALISED.initialised();
+        } catch (ThreadDeath ok) {
+            //
+            // Semantics of ThreadDeath require this to propagate:
+            //
+            throw ok;
+        } catch (Throwable ohno) {
+            //
+            // We shouldn't attempt to recover or ignore anything else:
+            //
+            LOG.error("Unable to apply configuration, exiting.", ohno);
+            System.exit(2);
+        }
     }
 
     private static void logConsulKeys() {
