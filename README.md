@@ -10,7 +10,6 @@ snippets to get you up and running with secore. Additional information about
 the various secore modules can be found via the links in the cheat sheet.
 
 
-
 ### Using the template
 
 This template contains a complete (but useless) secore application.

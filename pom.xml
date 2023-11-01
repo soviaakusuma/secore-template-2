@@ -9,7 +9,7 @@
   <parent>
     <groupId>com.telflow.assembly</groupId>
     <artifactId>assembly-parent-container</artifactId>
-    <version>11.7.3</version>
+    <version>11.7.20</version>
     <relativePath/>
   </parent>
 
@@ -17,8 +17,8 @@
   <artifactId>secore-template</artifactId>
   <version>${revision}${changelist}</version>
 
-  <name>«define name»</name>
-  <description>«define description»</description>
+  <name>secore-template</name>
+  <description>This is a repository containing a working Java SE microservice, intended to be used with secore.</description>
 
   <scm>
     <connection>scm:git:git://localhost/${basedir}</connection>
@@ -33,7 +33,7 @@
     <component.name>set__component_name__in_pom_xml</component.name>
 
     <defaultJavaOpts>-Xms256m -Xmx256m</defaultJavaOpts>
-    <mainClass>com.inomial.secore.template.Main</mainClass>
+    <mainClass>com.telflow.secore.template.Main</mainClass>
 
     <component.home>/opt/telflow/${component.name}</component.home>
     <app.name>telflow-${component.name}</app.name>
@@ -233,10 +233,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
-      <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.codehaus.gmavenplus</groupId>-->
+<!--        <artifactId>gmavenplus-plugin</artifactId>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
@@ -256,7 +256,7 @@
                   <component>${component.name}</component>
                   <version>${docker.preciseVersion}</version>
                   <defaultJavaOpts>${defaultJavaOpts}</defaultJavaOpts>
-                  <mainClass>${mainClass}</mainClass>
+                  <mainClass>com.telflow.secore.template.Main</mainClass>
                   <BUILD_DATE>${build.time}</BUILD_DATE>
                   <BUILD_VERSION>${buildNumber}</BUILD_VERSION>
                 </args>
@@ -298,7 +298,7 @@
           <execution>
             <id>default-cli</id>
             <configuration>
-              <mainClass>${mainClass}</mainClass>
+              <mainClass>com.telflow.secore.template.Main</mainClass>
               <arguments>
                 <argument>${exec.args}</argument>
               </arguments>

@@ -1,16 +1,17 @@
 /*
- * Copyright (c) 2010-2022 DGIT Consultants Pty. Ltd. All Rights Reserved.
+ * Copyright (c) 2010-2022 DGIT Systems Pty. Ltd. All Rights Reserved.
  *
  * This program and the accompanying materials are the property of DGIT
- * Consultants Pty. Ltd.
+ * Systems Pty. Ltd.
  *
- * You may obtain a copy of the License at http://www.dgit.biz/license
+ * You may obtain a copy of the Licence at http://www.dgit.biz/licence
  */
 
-package com.inomial.secore.template;
+package com.telflow.secore.template;
 
 import com.inomial.secore.mon.MonitoringServer;
 import com.telflow.factory.configuration.management.ConsulManager;
+
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -29,14 +30,10 @@ public enum Consul {
     APP_CFG_B("/appConfig2", "defaultValue2", KeyType.App),
 
     KAFKA_PRODUCE_TOPIC("/kafka/producer",
-        String.format("solution.%s.outbox", ConsulApplication.CONSUL_APP_NAME),
-        KeyType.App),
+            String.format("solution.%s.outbox", ConsulApplication.CONSUL_APP_NAME), KeyType.App),
     KAFKA_CONSUME_TOPIC("/kafka/consumer",
-        String.format("solution.%s.inbox", ConsulApplication.CONSUL_APP_NAME),
-        KeyType.App),
-    KAFKA_CONSUME_GROUP("/kafka/group",
-        ConsulApplication.CONSUL_APP_NAME,
-        KeyType.App),
+            String.format("solution.%s.inbox", ConsulApplication.CONSUL_APP_NAME), KeyType.App),
+    KAFKA_CONSUME_GROUP("/kafka/group", ConsulApplication.CONSUL_APP_NAME, KeyType.App),
 
     HEALTHCHECK_PORT("/healthcheck/port", Integer.toString(MonitoringServer.DEFAULT_PORT), KeyType.App),
     HEALTHCHECK_WAIT("/healthcheck/perCheckMaxWait", "150", KeyType.App),

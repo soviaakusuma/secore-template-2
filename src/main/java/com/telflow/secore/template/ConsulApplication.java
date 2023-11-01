@@ -1,5 +1,13 @@
+/*
+ * Copyright (c) 2010-2022 DGIT Systems Pty. Ltd. All Rights Reserved.
+ *
+ * This program and the accompanying materials are the property of DGIT
+ * Systems Pty. Ltd.
+ *
+ * You may obtain a copy of the Licence at http://www.dgit.biz/licence
+ */
 
-package com.inomial.secore.template;
+package com.telflow.secore.template;
 
 import com.inomial.secore.health.Healthcheck;
 import com.inomial.secore.health.kafka.KafkaHealthcheck;
