@@ -9,10 +9,16 @@
 
 package com.telflow.secore.template;
 
+import com.inomial.secore.http.HttpServer;
 import com.telflow.factory.configuration.management.ConsulManager;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,12 +40,17 @@ public class ConsulApplication {
         startConsul();
     }
 
+    private void testApi() {
+        HttpServer.addResourceClass(TestApiClass.class);
+        HttpServer.start(Collections.emptySet(), Collections.emptySet());
+    }
+
     @SuppressWarnings("checkstyle:illegalcatch")
     private void consulChanged() {
         try {
             LOG.info("Consul changed, updating configuration.");
+            logConsulKeys();
             Main.INITIALISED.starting();
-
             LOG.info("Configuration applied.");
             Main.INITIALISED.initialised();
         } catch (ThreadDeath ok) {
@@ -48,6 +59,17 @@ public class ConsulApplication {
             LOG.error("Unable to apply configuration, exiting.", ohno);
             System.exit(2);
         }
+    }
+
+    private static void logConsulKeys() {
+        Predicate<String> isSecretKey = k ->
+                k == null || k.toLowerCase().contains("secure") || k.toLowerCase().contains("pass");
+
+        String keys = Arrays.stream(Consul.values())
+                .map(entry -> entry.key() + " " + (isSecretKey.test(entry.key()) ? "*omitted*" : entry.value()))
+                .sorted()
+                .collect(Collectors.joining("\n"));
+        LOG.info("Configuration:\n{}", keys);
     }
 
     /**
@@ -65,5 +87,6 @@ public class ConsulApplication {
         ConsulManager.init(url, CONSUL_APP_NAME, Consul.defaults());
         ConsulManager.addRegisteredObject(ConsulApplication.class.getName(), this::consulChanged);
         consulChanged();
+        testApi();
     }
 }
